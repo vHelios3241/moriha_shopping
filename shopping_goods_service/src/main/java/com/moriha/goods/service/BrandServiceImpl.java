@@ -21,7 +21,8 @@ public class BrandServiceImpl implements BrandService {
      * @return
      */
     @Override
-    public Brand findbyId(Long id){
-        return brandMapper.selectById(id);
+    public Brand findById(Long id){
+        Brand brand = brandMapper.selectById(id);
+        return brand;
     }
 }
