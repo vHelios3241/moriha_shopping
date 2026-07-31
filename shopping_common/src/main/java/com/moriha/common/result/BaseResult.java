@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class BaseResult<T> {
+public class BaseResult<T> implements java.io.Serializable{
 
     private Integer code;
 
