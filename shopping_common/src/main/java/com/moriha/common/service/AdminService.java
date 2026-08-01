@@ -21,5 +21,6 @@ public interface AdminService {
     // 分页查询管理员
     Page<Admin> search(int page, int size);
 
-
+    // 修改管理员角色
+    void updateAdminRole(Long aid, Long[] rids);
 }

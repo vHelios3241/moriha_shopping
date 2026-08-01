@@ -21,6 +21,7 @@
         </collection>
 
     </resultMap>
+
     <select id="findById" parameterType="long" resultMap="adminMapper">
         SELECT * FROM bz_admin
         LEFT JOIN bz_admin_role ON bz_admin.aid = bz_admin_role.aid
@@ -29,4 +30,9 @@
         LEFT JOIN bz_permission	ON bz_role_permission.pid = bz_permission.pid
         WHERE bz_admin.aid = #{id}
     </select>
+
+    <insert id="addRoleToAdmin">
+        INSERT INTO bz_admin_role VALUES(#{aid},#{rid});
+    </insert>
+
 </mapper>

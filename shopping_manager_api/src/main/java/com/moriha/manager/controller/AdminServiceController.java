@@ -67,4 +67,15 @@ public class AdminServiceController {
         Page<Admin> search = adminService.search(page, size);
         return BaseResult.ok(search);
     }
+
+    /**
+     * 修改管理员角色
+     * @param aid
+     * @param rids
+     */
+    @PutMapping("/updateRoleToAdmin")
+    public BaseResult updateRoleToAdmin(Long aid, Long[] rids){
+        adminService.updateAdminRole(aid, rids);
+        return BaseResult.ok();
+    }
 }

@@ -39,7 +39,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void delete(Long id) {
         // 删除用户角色
-        adminMapper.deleteAdminRole(id);
+        adminMapper.deleteAdminAllRole(id);
         //删除用户
         adminMapper.deleteById(id);
     }
@@ -63,6 +63,21 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Page<Admin> search(int page, int size) {
         return adminMapper.selectPage(new Page<>(page, size), null);
+    }
+
+    /**
+     * 修改管理员角色
+     * @param aid
+     * @param rids
+     */
+    @Override
+    public void updateAdminRole(Long aid, Long[] rids) {
+        // 删除管理员所有角色
+        adminMapper.deleteAdminAllRole(aid);
+        // 重新添加管理员角色
+        for (Long rid : rids) {
+            adminMapper.addRoleToAdmin(aid, rid);
+        }
     }
 
 
