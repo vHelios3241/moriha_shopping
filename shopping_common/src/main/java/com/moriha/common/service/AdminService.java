@@ -1,5 +1,6 @@
 package com.moriha.common.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Admin;
 
 
@@ -16,6 +17,9 @@ public interface AdminService {
 
     // 根据id查询管理员
     Admin findById(Long id);
+
+    // 分页查询管理员
+    Page<Admin> search(int page, int size);
 
 
 }

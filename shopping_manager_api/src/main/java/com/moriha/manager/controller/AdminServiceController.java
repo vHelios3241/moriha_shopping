@@ -1,10 +1,10 @@
 package com.moriha.manager.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Admin;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.AdminService;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -54,5 +54,17 @@ public class AdminServiceController {
     public BaseResult<Admin> findById(@RequestParam Long aid){
         Admin byId = adminService.findById(aid);
         return BaseResult.ok(byId);
+    }
+
+    /**
+     * 分页查询管理员
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping("/search")
+    public BaseResult<Page<Admin>> search(int page, int size){
+        Page<Admin> search = adminService.search(page, size);
+        return BaseResult.ok(search);
     }
 }

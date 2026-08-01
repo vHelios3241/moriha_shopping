@@ -1,5 +1,6 @@
 package com.moriha.shopping_admin_service.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Admin;
 import com.moriha.common.service.AdminService;
 import com.moriha.shopping_admin_service.mapper.AdminMapper;
@@ -52,5 +53,17 @@ public class AdminServiceImpl implements AdminService {
     public Admin findById(Long id) {
         return adminMapper.findById(id);
     }
+
+    /**
+     * 分页查询管理员
+     * @param page
+     * @param size
+     * @return
+     */
+    @Override
+    public Page<Admin> search(int page, int size) {
+        return adminMapper.selectPage(new Page<>(page, size), null);
+    }
+
 
 }
