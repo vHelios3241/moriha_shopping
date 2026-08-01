@@ -13,6 +13,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 @SpringBootApplication(exclude =  {DataSourceAutoConfiguration.class})
 @EnableDiscoveryClient  // 开启服务注册与发现功能
 @RefreshScope  // 配置动态刷新
+@EnableDubbo
 public class ManagerApiApplication {
 
     public static void main(String[] args) {

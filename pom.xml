@@ -16,6 +16,8 @@
         <module>shopping_goods_service</module>
         <!-- 管理端API模块 -->
         <module>shopping_manager_api</module>
+        <!-- 后台管理员API模块 -->
+        <module>shopping_admin_service</module>
     </modules>
 
 

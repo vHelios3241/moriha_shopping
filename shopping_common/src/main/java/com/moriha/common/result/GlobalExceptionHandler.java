@@ -21,7 +21,9 @@ public class GlobalExceptionHandler {
     // 处理系统异常
     @ExceptionHandler(Exception.class)
     public BaseResult defaultExceptionHandler(HttpServletRequest request, Exception e){
+        e.printStackTrace();
         BaseResult baseResult = new BaseResult(CodeEnum.SYSTEM_ERROR.getCode(), CodeEnum.SYSTEM_ERROR.getMessage(), null);
         return baseResult;
     }
+
 }
