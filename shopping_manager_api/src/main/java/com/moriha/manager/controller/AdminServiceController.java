@@ -44,4 +44,15 @@ public class AdminServiceController {
         adminService.delete(aid);
         return BaseResult.ok();
     }
+
+    /**
+     * 根据id查询管理员
+     * @param aid
+     * @return
+     */
+    @GetMapping("/findById")
+    public BaseResult<Admin> findById(@RequestParam Long aid){
+        Admin byId = adminService.findById(aid);
+        return BaseResult.ok(byId);
+    }
 }

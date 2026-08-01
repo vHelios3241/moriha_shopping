@@ -13,4 +13,9 @@ public interface AdminService {
 
     // 删除管理员
     void delete(Long id);
+
+    // 根据id查询管理员
+    Admin findById(Long id);
+
+
 }

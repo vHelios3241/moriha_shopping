@@ -26,6 +26,7 @@ public class AdminServiceImpl implements AdminService {
      * 修改管理员
      * @param admin
      */
+    @Override
     public void update(Admin admin){
         adminMapper.updateById(admin);
     }
@@ -40,6 +41,16 @@ public class AdminServiceImpl implements AdminService {
         adminMapper.deleteAdminRole(id);
         //删除用户
         adminMapper.deleteById(id);
+    }
+
+    /**
+     * 根据id查询管理员
+     * @param id
+     * @return
+     */
+    @Override
+    public Admin findById(Long id) {
+        return adminMapper.findById(id);
     }
 
 }

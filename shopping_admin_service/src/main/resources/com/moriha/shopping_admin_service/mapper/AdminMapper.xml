@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moriha.shopping_admin_service.mapper.AdminMapper">
+
+    <resultMap id="adminMapper" type="com.moriha.common.pojo.Admin">
+        <id property="aid" column="aid"/>
+        <result property="username" column="username"/>
+
+        <collection property="roles" column="aid" ofType="com.moriha.common.pojo.Role">
+            <id property="rid" column="rid"/>
+            <result property="roleName" column="roleName"/>
+            <result property="roleDesc" column="roleDesc"/>
+
+            <collection property="permissions" column="rid" ofType="com.moriha.common.pojo.Permission">
+                <id property="pid" column="pid"/>
+                <result property="permissionName" column="permissionName"/>
+                <result property="url" column="url"/>
+            </collection>
+        </collection>
+
+    </resultMap>
+    <select id="findById" parameterType="long" resultMap="adminMapper">
+        SELECT * FROM bz_admin
+        LEFT JOIN bz_admin_role ON bz_admin.aid = bz_admin_role.aid
+        LEFT JOIN bz_role ON bz_admin_role.rid = bz_role.rid
+        LEFT JOIN bz_role_permission ON bz_role.rid = bz_role_permission.rid
+        LEFT JOIN bz_permission	ON bz_role_permission.pid = bz_permission.pid
+        WHERE bz_admin.aid = #{id}
+    </select>
+</mapper>
