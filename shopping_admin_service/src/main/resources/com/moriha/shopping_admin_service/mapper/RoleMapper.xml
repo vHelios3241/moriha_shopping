@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moriha.shopping_admin_service.mapper.RoleMapper">
+    <resultMap id="roleMapper" type="com.moriha.common.pojo.Role">
+        <id property="rid" column="rid"/>
+        <result property="roleName" column="roleName"/>
+        <result property="roleDesc" column="roleDesc"/>
+        <collection property="permissions" column="rid" ofType="com.moriha.common.pojo.Permission">
+            <id property="pid" column="pid"/>
+            <result property="permissionName" column="permissionName"/>
+            <result property="url" column="url"/>
+        </collection>
+    </resultMap>
+
+    <insert id="addPermissionToRole">
+        INSERT INTO bz_role_permission(rid, pid) VALUES (#{rid}, #{pid})
+    </insert>
+
+    <delete id="deleteRoleAllPermission" parameterType="long">
+        DELETE FROM bz_role_permission WHERE rid = #{rid}
+    </delete>
+
+    <delete id="deleteRoleAllAdmin" parameterType="long">
+        DELETE FROM bz_admin_role WHERE rid = #{rid}
+    </delete>
+
+    <select id="findById" parameterType="long" resultMap="roleMapper">
+        SELECT * FROM bz_role
+        LEFT JOIN bz_role_permission ON bz_role.rid = bz_role_permission.rid
+        LEFT JOIN bz_permission ON bz_role_permission.pid = bz_permission.pid
+        WHERE bz_role.rid = #{rid}
+    </select>
+
+</mapper>
