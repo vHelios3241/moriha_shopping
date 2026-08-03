@@ -1,4 +1,4 @@
-package com.moriha.manager.handler;
+package com.moriha.manager.security;
 
 
 import com.alibaba.fastjson2.JSON;
