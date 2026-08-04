@@ -2,6 +2,9 @@ package com.moriha.common.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Admin;
+import com.moriha.common.pojo.Permission;
+
+import java.util.List;
 
 
 public interface AdminService {
@@ -23,4 +26,10 @@ public interface AdminService {
 
     // 修改管理员角色
     void updateAdminRole(Long aid, Long[] rids);
+
+    // 根据用户名查询管理员
+    Admin findByAdminName(String username);
+
+    // 查询管理员所有权限
+    List<Permission> findAllPermission(String username);
 }
