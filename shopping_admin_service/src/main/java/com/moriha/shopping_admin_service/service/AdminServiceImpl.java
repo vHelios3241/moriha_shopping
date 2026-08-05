@@ -9,6 +9,7 @@ import com.moriha.shopping_admin_service.mapper.AdminMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -33,6 +34,11 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public void update(Admin admin){
+        // 密码为空，使用原密码
+        if(!StringUtils.hasText(admin.getPassword())){
+            String password = adminMapper.selectById(admin.getAid()).getPassword();
+            admin.setPassword(password);
+        }
         adminMapper.updateById(admin);
     }
 

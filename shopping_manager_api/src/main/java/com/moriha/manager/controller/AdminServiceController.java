@@ -5,13 +5,21 @@ import com.moriha.common.pojo.Admin;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.AdminService;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Security;
 
 @RestController
 @RequestMapping("/admin")
 public class AdminServiceController {
+
     @DubboReference(check = false)
     private AdminService adminService;
+    @Autowired
+    private PasswordEncoder encoder;
 
     /**
      * 添加管理员
@@ -20,6 +28,9 @@ public class AdminServiceController {
      */
     @PostMapping("/add")
     public BaseResult add(@RequestBody Admin admin){
+        String password = admin.getPassword();
+        password = encoder.encode(password);
+        admin.setPassword(password);
         adminService.add(admin);
         return BaseResult.ok();
     }
@@ -31,6 +42,12 @@ public class AdminServiceController {
      */
     @PutMapping("/update")
     public BaseResult update(@RequestBody Admin admin){
+        String password = admin.getPassword();
+        if(StringUtils.hasText(password)){
+            // 密码不为空加密
+            password = encoder.encode(password);
+            admin.setPassword(password);
+        }
         adminService.update(admin);
         return BaseResult.ok();
     }
