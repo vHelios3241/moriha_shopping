@@ -1,12 +1,16 @@
 package com.moriha.shopping_admin_service.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Admin;
+import com.moriha.common.pojo.Permission;
 import com.moriha.common.service.AdminService;
 import com.moriha.shopping_admin_service.mapper.AdminMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @DubboService
 @Transactional
@@ -79,6 +83,30 @@ public class AdminServiceImpl implements AdminService {
             adminMapper.addRoleToAdmin(aid, rid);
         }
     }
+
+    /**
+     * 根据用户名查询管理员
+     * @param username
+     * @return
+     */
+    @Override
+    public Admin findByAdminName(String username) {
+        QueryWrapper<Admin> wrapper = new QueryWrapper();
+        wrapper.eq("username", username);
+        Admin admin = adminMapper.selectOne(wrapper);
+        return admin;
+    }
+
+    /**
+     *  查询管理员所有权限
+     * @param username
+     * @return
+     */
+    @Override
+    public List<Permission> findAllPermission(String username) {
+        return adminMapper.findAllPermission(username);
+    }
+
 
 
 }

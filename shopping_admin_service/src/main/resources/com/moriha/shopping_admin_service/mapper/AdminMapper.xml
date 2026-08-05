@@ -46,13 +46,20 @@
         <result property="url" column="url"/>
     </resultMap>
 
-    <select id="findAllPermission" parameterType="string" resultMap="permissionMapper">
-        SELECT DISTINCT p.pid, p.permissionName, p.url
-        FROM bz_permission p
-        INNER JOIN bz_role_permission rp ON p.pid = rp.pid
-        INNER JOIN bz_admin_role ar ON rp.rid = ar.rid
-        INNER JOIN bz_admin a ON ar.aid = a.aid
-        WHERE a.username = #{username}
+    <select id="findAllPermission" resultType="com.moriha.common.pojo.Permission" parameterType="string">
+        SELECT
+        DISTINCT bz_permission.*
+        FROM
+        bz_admin
+        LEFT JOIN bz_admin_role
+        ON bz_admin.aid = bz_admin_role.aid
+        LEFT JOIN bz_role
+        ON bz_admin_role.rid = bz_role.rid
+        LEFT JOIN bz_role_permission
+        ON bz_role.rid = bz_role_permission.rid
+        LEFT JOIN bz_permission
+        ON bz_role_permission.pid = bz_permission.pid
+        WHERE bz_admin.username = #{username}
     </select>
 
     <insert id="addRoleToAdmin">
