@@ -39,12 +39,6 @@
         WHERE bz_admin.username = #{username}
     </select>
 
-    <!-- Permission 结果映射 -->
-    <resultMap id="permissionMapper" type="com.moriha.common.pojo.Permission">
-        <id property="pid" column="pid"/>
-        <result property="permissionName" column="permissionName"/>
-        <result property="url" column="url"/>
-    </resultMap>
 
     <select id="findAllPermission" resultType="com.moriha.common.pojo.Permission" parameterType="string">
         SELECT
