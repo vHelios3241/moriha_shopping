@@ -21,9 +21,6 @@ public interface AdminMapper extends BaseMapper<Admin> {
     //给管理员添加角色
     void addRoleToAdmin(@Param("aid") Long aid, @Param("rid") Long rid);
 
-    // 根据用户名查询管理员
-    Admin findByAdminName(String username);
-
     // 查询管理员所有权限
     List<Permission> findAllPermission(String username);
 }

@@ -5,6 +5,7 @@ import com.moriha.common.pojo.Role;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.RoleService;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -74,10 +75,11 @@ public class RoleServiceController {
      * @param size 每页显示条数
      * @return 返回分页查询结果，包含角色数据
      */
-    @GetMapping("/search")  // HTTP GET请求映射到/search路径
-    public BaseResult<Page<Role>> search(int page, int size) {  // 方法定义，接收页码和每页大小参数
-        Page<Role> search = roleService.search(page, size);  // 调用服务层方法进行分页查询
-        return BaseResult.ok(search);  // 返回查询成功的响应结果
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyAuthority('/role/search')")
+    public BaseResult<Page<Role>> search(int page, int size) {
+        Page<Role> search = roleService.search(page, size);
+        return BaseResult.ok(search);
     }
 
     /**

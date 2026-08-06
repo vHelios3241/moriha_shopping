@@ -6,6 +6,7 @@ import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.AdminService;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -84,6 +85,7 @@ public class AdminServiceController {
      * @return
      */
     @GetMapping("/search")
+    @PreAuthorize("hasAnyAuthority('/admin/search')")
     public BaseResult<Page<Admin>> search(int page, int size){
         Page<Admin> search = adminService.search(page, size);
         return BaseResult.ok(search);

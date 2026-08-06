@@ -33,9 +33,13 @@ public class MyUserDetailService implements UserDetailsService{
         // 2. 授权 (查询出所有权限 然后选择赋予）
         List<Permission> permissions = adminService.findAllPermission(username);
         List<GrantedAuthority> grantedAuthority = new ArrayList<>();
-        for (Permission permission : permissions) {
-            grantedAuthority.add(new SimpleGrantedAuthority(permission.getUrl()));
+        if (permissions.get(0) != null){
+            for (Permission permission : permissions) {
+                grantedAuthority.add(new SimpleGrantedAuthority(permission.getUrl()));
+            }
         }
+
+
 
         // 3. 封装为UserDetails对象
         UserDetails userDetails = User.withUsername(admin.getUsername())

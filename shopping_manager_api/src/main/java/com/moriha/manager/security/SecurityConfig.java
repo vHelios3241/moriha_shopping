@@ -2,6 +2,7 @@ package com.moriha.manager.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +10,9 @@ import org.springframework.security.web.SecurityFilterChain;
 
 // security配置类
 @Configuration
+// 开启鉴权配置注解
+@EnableMethodSecurity
+
 public class SecurityConfig {
     // Spring Security配置
     @Bean
