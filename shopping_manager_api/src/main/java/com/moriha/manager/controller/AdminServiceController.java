@@ -62,7 +62,7 @@ public class AdminServiceController {
      * @param aid
      */
     @DeleteMapping("/delete")
-    public BaseResult delete(@RequestParam Long aid){
+    public BaseResult delete(Long aid){
         adminService.delete(aid);
         return BaseResult.ok();
     }
@@ -73,7 +73,7 @@ public class AdminServiceController {
      * @return
      */
     @GetMapping("/findById")
-    public BaseResult<Admin> findById(@RequestParam Long aid){
+    public BaseResult<Admin> findById(Long aid){
         Admin byId = adminService.findById(aid);
         return BaseResult.ok(byId);
     }
