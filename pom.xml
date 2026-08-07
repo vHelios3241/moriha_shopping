@@ -30,7 +30,7 @@
                 <spring-boot.version>3.0.2</spring-boot.version>
                 <spring-cloud.version>2022.0.0</spring-cloud.version>
                 <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
-                <lombok.version>1.18.28</lombok.version>
+                <lombok.version>1.18.36</lombok.version>
                 <mybatis-plus.version>3.5.4</mybatis-plus.version>
     </properties>
 
@@ -120,6 +120,24 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
     </build>
 
 

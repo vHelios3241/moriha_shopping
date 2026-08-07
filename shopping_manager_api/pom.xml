@@ -11,10 +11,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <!-- 子模块 -->
     <artifactId>shopping_manager_api</artifactId>
-    <name>shopping_manager_api</name>
-    <description>管理端API模块 —— 提供后台管理相关的REST接口，通过Dubbo调用远程服务</description>
 
     <dependencies>
         <!-- 依赖通用模块common -->
@@ -72,14 +69,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
