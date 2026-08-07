@@ -50,12 +50,12 @@ public class RoleServiceController {
 
     /**
      * 根据id查询角色
-     * @param id
+     * @param rid
      * @return
      */
     @GetMapping("/findById")
-    public BaseResult<Role> findById(Long id) {
-        Role byId = roleService.findById(id);
+    public BaseResult<Role> findById(Long rid) {
+        Role byId = roleService.findById(rid);
         return BaseResult.ok(byId);
     }
 

@@ -3,9 +3,11 @@ package com.moriha.common.result;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
-public class BaseResult<T> implements java.io.Serializable{
+public class BaseResult<T> implements Serializable {
 
     private Integer code;
 
