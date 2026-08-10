@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moriha.goods.mapper.SpecificationMapper">
+    <resultMap id="specificationMapper" type="com.moriha.common.pojo.Specification">
+        <id property="id" column="bid"/>
+        <result property="specName" column="specName"/>
+        <result property="productTypeId" column="productTypeId"/>
+        <collection property="specificationOptions" column="specId" ofType="com.moriha.common.pojo.SpecificationOption">
+            <id property="id" column="oid"/>
+            <result property="optionName" column="optionName"/>
+            <result property="specId" column="specId"/>
+        </collection>
+    </resultMap>
+
+    <select id="findById" parameterType="long" resultMap="specificationMapper">
+        SELECT
+        bz_specification.id AS bid,
+        bz_specification.specName,
+        bz_specification.productTypeId,
+        bz_specification_option.id AS oid,
+        bz_specification_option.optionName,
+        bz_specification_option.specId
+        From bz_specification
+        LEFT JOIN bz_specification_option
+        ON bz_specification.id = bz_specification_option.specId
+        WHERE bz_specification.id = #{id}
+    </select>
+
+    <select id="findByProductTypeId" parameterType="long" resultMap="specificationMapper">
+        SELECT
+        bz_specification.id AS bid,
+        bz_specification.specName,
+        bz_specification.productTypeId,
+        bz_specification_option.id AS oid,
+        bz_specification_option.optionName,
+        bz_specification_option.specId
+        FROM bz_specification
+        LEFT JOIN bz_specification_option
+        on bz_specification.id = bz_specification_option.specId
+        where bz_specification.productTypeId = #{productTypeId}
+    </select>
+
+</mapper>
