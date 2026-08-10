@@ -1,54 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.moriha</groupId>
-    <artifactId>Moriha_father_shopping</artifactId>
+    <artifactId>shopping</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <!--子模块-->
+    <!-- 子模块 -->
     <modules>
-        <!-- 通用模块，包含实体类、服务接口、工具类等 -->
         <module>shopping_common</module>
-        <!-- 商品服务模块 -->
-        <module>shopping_goods_service</module>
-        <!-- 管理端API模块 -->
-        <module>shopping_manager_api</module>
-        <!-- 后台管理员API模块 -->
         <module>shopping_admin_service</module>
+        <module>shopping_manager_api</module>
+        <module>shopping_goods_service</module>
+        <module>shopping_file_service</module>
     </modules>
 
-
-
     <properties>
-                <java.version>17</java.version>
-                <dubbo.version>3.2.4</dubbo.version>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-                <spring-boot.version>3.0.2</spring-boot.version>
-                <spring-cloud.version>2022.0.0</spring-cloud.version>
-                <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
-                <lombok.version>1.18.36</lombok.version>
-                <mybatis-plus.version>3.5.4</mybatis-plus.version>
+        <java.version>17</java.version>
+        <dubbo.version>3.2.4</dubbo.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-boot.version>3.0.2</spring-boot.version>
+        <spring-cloud.version>2022.0.0</spring-cloud.version>
+        <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
+        <lombok.version>1.18.28</lombok.version>
+        <mybatis-plus.version>3.5.4</mybatis-plus.version>
     </properties>
 
-
-
-    <!-- 依赖版本统一管控 -->
+    <!-- 依赖版本声明 -->
     <dependencyManagement>
         <dependencies>
-            <!-- SpringBoot 版本控制 -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- Spring Cloud版本 -->
+            <!-- Spring Cloud版本-->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -66,6 +51,15 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- SpringBoot版本 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Dubbo版本 -->
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
@@ -75,26 +69,21 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- MyBatis-Plus 版本BOM统一管控 -->
-            <dependency>
-                <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-bom</artifactId>
-                <version>${mybatis-plus.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- lombok版本（两种写法任选其一，下面是标准写法） -->
+            <!-- lombok版本 -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
 
+            <!-- mybatis-plus版本 -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-
 
     <!-- 通用依赖 -->
     <dependencies>
@@ -111,37 +100,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <parameters>true</parameters>
                 </configuration>
             </plugin>
         </plugins>
-
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-maven-plugin</artifactId>
-                    <version>${spring-boot.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>repackage</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
     </build>
-
-
-
 
     <!-- 依赖仓库路径 -->
     <repositories>
@@ -169,6 +135,4 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
-
 </project>
