@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.moriha.goods.mapper.GoodsMapper">
+    <resultMap id="goodsMapper" type="com.moriha.common.pojo.Goods">
+        <id property="id" column="bid"></id>
+        <result property="goodsName" column="goodsName"></result>
+        <result property="caption" column="caption"></result>
+        <result property="price" column="price"></result>
+        <result property="headerPic" column="headerPic"></result>
+        <result property="isMarketable" column="isMarketable"></result>
+        <result property="brandId" column="brandId"></result>
+        <result property="productType1Id" column="productType1Id"></result>
+        <result property="productType2Id" column="productType2Id"></result>
+        <result property="productType3Id" column="productType3Id"></result>
+        <result property="introduction" column="introduction"></result>
+        <collection property="images" column="bid" ofType="com.moriha.common.pojo.GoodsImage">
+            <id property="id" column="imageId"></id>
+            <result property="imageTitle" column="imageTitle"></result>
+            <result property="imageUrl" column="imageUrl"></result>
+        </collection>
+        <collection property="specifications" column="bid" ofType="com.moriha.common.pojo.Specification">
+            <id property="id" column="specificationId"></id>
+            <result property="specName" column="specName"></result>
+            <result property="productTypeId" column="productTypeId"></result>
+            <collection property="specificationOptions" column="specificationId" ofType="com.moriha.common.pojo.SpecificationOption">
+                <id property="id" column="optionId"></id>
+                <result property="optionName" column="optionName"></result>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="findById" resultMap="goodsMapper">
+        SELECT
+        bz_goods.`id` bid,
+        bz_goods.`goodsName` goodsName,
+        bz_goods.`caption` caption,
+        bz_goods.`price` price,
+        bz_goods.`headerPic` headerPic,
+        bz_goods.`introduction` introduction,
+        bz_goods.`isMarketable` isMarketable,
+        bz_goods.`brandId` brandId,
+        bz_goods.`productType1Id` productType1Id,
+        bz_goods.`productType2Id` productType2Id,
+        bz_goods.`productType3Id` productType3Id,
+        bz_goods_image.`id` imageId,
+        bz_goods_image.`imageTitle` imageTitle,
+        bz_goods_image.`imageUrl` imageUrl,
+        bz_specification.`id` specificationId,
+        bz_specification.`specName` specName,
+        bz_specification.`productTypeId` productTypeId,
+        bz_specification_option.`id` optionId,
+        bz_specification_option.`optionName` optionName
+        FROM
+        bz_goods,
+        bz_goods_specification_option,
+        bz_specification_option,
+        bz_specification,
+        bz_goods_image
+        WHERE bz_goods.`id` = bz_goods_specification_option.`gid`
+        AND bz_goods_specification_option.`optionId` = bz_specification_option.`id`
+        AND bz_specification.`id` = bz_specification_option.`specId`
+        AND bz_goods.`id` = bz_goods_image.`goodsId`
+        AND bz_goods.id = #{gid}
+    </select>
+
+    <insert id="addGoodsSpecificationOption" parameterType="long">
+        INSERT INTO bz_goods_specification_option VALUES (#{gid}, #{optionId})
+    </insert>
+
+    <delete id="deleteGoodsSpecificationOption" parameterType="long">
+        DELETE FROM bz_goods_specification_option WHERE gid = #{gid}
+    </delete>
+
+    <update id="putAway">
+        UPDATE bz_goods SET isMarketable = #{isMarketable} WHERE id = #{id}
+    </update>
+
+
+
+</mapper>
