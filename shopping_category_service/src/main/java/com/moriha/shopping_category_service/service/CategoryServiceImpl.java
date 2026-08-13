@@ -7,6 +7,8 @@ import com.moriha.shopping_category_service.mapper.CategoryMapper;
 import com.moriha.common.service.CategoryService;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +18,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Autowired
     private CategoryMapper categoryMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public void add(Category category) {
@@ -49,8 +53,19 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<Category> findAll() {
-        QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("status", 1);
-        return categoryMapper.selectList(queryWrapper);
+        //1. 从redis中获取缓存数据
+        ListOperations listOperations = redisTemplate.opsForList();
+        List<Category> categories = listOperations.range("categories", 0, -1);
+        if(categories != null && categories.size() > 0){
+            //2. 查到结果，直接返回
+            return categories;
+        }else{
+            //3. 没有查到，就从数据库中查询，并同步到redis中
+            QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("status", 1);
+            List<Category> categoryList = categoryMapper.selectList(queryWrapper);
+            listOperations.leftPushAll("categories", categoryList);
+            return categoryList;
+        }
     }
 }
