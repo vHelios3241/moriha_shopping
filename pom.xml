@@ -16,6 +16,8 @@
         <module>shopping_manager_api</module>
         <module>shopping_goods_service</module>
         <module>shopping_file_service</module>
+        <module>shopping_category_service</module>
+        <module>shopping_category_customer_api</module>
     </modules>
 
     <properties>
@@ -131,7 +133,7 @@
                 <enabled>true</enabled>
             </releases>
             <snapshots>
-                <enabled>false</enabled>
+                <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
