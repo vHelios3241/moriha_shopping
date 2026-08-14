@@ -24,16 +24,19 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void add(Category category) {
         categoryMapper.insert(category);
+        refreshRedisCategory();
     }
 
     @Override
     public void update(Category category) {
         categoryMapper.updateById(category);
+        refreshRedisCategory();
     }
 
     @Override
     public void updateStatus(Long id, Integer status) {
         categoryMapper.updateStatus(id, status);
+        refreshRedisCategory();
     }
 
     @Override
@@ -54,7 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<Category> findAll() {
         //1. 从redis中获取缓存数据
-        ListOperations listOperations = redisTemplate.opsForList();
+        ListOperations<String,Category> listOperations = redisTemplate.opsForList();
         List<Category> categories = listOperations.range("categories", 0, -1);
         if(categories != null && categories.size() > 0){
             //2. 查到结果，直接返回
@@ -67,5 +70,20 @@ public class CategoryServiceImpl implements CategoryService {
             listOperations.leftPushAll("categories", categoryList);
             return categoryList;
         }
+    }
+
+    /**
+     * 更新redis中的广告数据
+     */
+    public void refreshRedisCategory() {
+        // 从数据库查询广告
+        QueryWrapper<Category> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status", 1);
+        List<Category> categoryList = categoryMapper.selectList(queryWrapper);
+        // 删除redis中的原有广告数据
+        redisTemplate.delete("categories");
+        // 将新的广告数据同步到redis中
+        ListOperations<String,Category> listOperations = redisTemplate.opsForList();
+        listOperations.leftPushAll("categories", categoryList);
     }
 }
