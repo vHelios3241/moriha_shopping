@@ -2,10 +2,7 @@ package com.moriha.goods.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.moriha.common.pojo.Goods;
-import com.moriha.common.pojo.GoodsImage;
-import com.moriha.common.pojo.Specification;
-import com.moriha.common.pojo.SpecificationOption;
+import com.moriha.common.pojo.*;
 import com.moriha.common.service.GoodsService;
 import com.moriha.goods.mapper.GoodsImageMapper;
 import com.moriha.goods.mapper.GoodsMapper;
@@ -129,5 +126,14 @@ public class GoodsServiceImpl implements GoodsService {
         }
         Page<Goods> page1 = goodsMapper.selectPage(new Page(page, size), queryWrapper);
         return page1;
+    }
+
+    /**
+     * 查询所有商品详情
+     * @return
+     */
+    @Override
+    public List<GoodsDesc> findAll() {
+        return goodsMapper.findAll();
     }
 }
