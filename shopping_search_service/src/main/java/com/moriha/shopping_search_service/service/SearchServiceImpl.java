@@ -1,6 +1,11 @@
 package com.moriha.shopping_search_service.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
+import co.elastic.clients.elasticsearch.core.search.FieldSuggester;
+import co.elastic.clients.elasticsearch.core.search.Suggester;
+import co.elastic.clients.elasticsearch.core.search.Suggestion;
 import co.elastic.clients.elasticsearch.indices.AnalyzeRequest;
 import co.elastic.clients.elasticsearch.indices.AnalyzeResponse;
 import co.elastic.clients.elasticsearch.indices.analyze.AnalyzeToken;
@@ -16,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @DubboService
 @Service
@@ -47,16 +53,58 @@ public class SearchServiceImpl implements SearchService {
         return words;
     }
 
-
+    /**
+     * 自动补齐关键字
+     * @param keyword 被补齐的词
+     * @return
+     */
+    @SneakyThrows
     @Override
     public List<String> autoSuggest(String keyword) {
-        return List.of();
+        // 1. 组装补全请求条件
+        Suggester suggester = Suggester.of(
+                s -> s.suggesters("prefix_suggestion", FieldSuggester.of(
+                        fs -> fs.completion(
+                                c -> c.skipDuplicates(true)
+                                        .size(10)
+                                        .field("tags")
+                        ).text(keyword)
+                ))
+        );
+        // 2. 发送请求到 ES 服务器
+        SearchResponse<Map> response = elasticsearchClient.search(
+                s -> s.index("goods")
+                        .suggest(suggester), Map.class  //把ES返回的数据转成Map
+        );
+        // 3. 解析 ES 返回的数据
+        //取出补全联想模块的数据
+        Map resultMap = response.suggest();
+        //取出对应的补全结果集合
+        List<Suggestion> suggestionList = (List)resultMap.get("prefix_suggestion");
+        //取第 0 个，拿到整套匹配出来的联想结果
+        Suggestion suggestion = suggestionList.get(0);
+        //拿到所有联想候选对象
+        List<CompletionSuggestOption> resultList = suggestion.completion().options();
+        //循环提取词条，返回字符串
+        List<String> result = new ArrayList<>();
+        for (CompletionSuggestOption completionSuggestOption : resultList) {
+            String text = completionSuggestOption.text();
+            result.add(text);
+        }
+        return result;
     }
 
+    /**
+     * 搜索商品
+     * @param goodsSearchParam 搜索条件
+     * @return
+     */
     @Override
     public GoodsSearchResult search(GoodsSearchParam goodsSearchParam) {
+        
         return null;
     }
+
 
     /**
      * 同步商品到 ES
