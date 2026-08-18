@@ -1,6 +1,7 @@
 package com.moriha.shopping_search_service.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.CompletionSuggestOption;
 import co.elastic.clients.elasticsearch.core.search.FieldSuggester;
@@ -9,6 +10,8 @@ import co.elastic.clients.elasticsearch.core.search.Suggestion;
 import co.elastic.clients.elasticsearch.indices.AnalyzeRequest;
 import co.elastic.clients.elasticsearch.indices.AnalyzeResponse;
 import co.elastic.clients.elasticsearch.indices.analyze.AnalyzeToken;
+import co.elastic.clients.json.JsonData;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.*;
 import com.moriha.common.service.SearchService;
 import com.moriha.shopping_search_service.repository.GoodsESRepository;
@@ -16,12 +19,18 @@ import lombok.SneakyThrows;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.client.elc.NativeQuery;
+import org.springframework.data.elasticsearch.client.elc.NativeQueryBuilder;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.print.DocFlavor;
+import java.util.*;
 
 @DubboService
 @Service
@@ -31,6 +40,8 @@ public class SearchServiceImpl implements SearchService {
     private ElasticsearchClient elasticsearchClient;
     @Autowired
     private GoodsESRepository goodsESRepository;
+    @Autowired
+    private ElasticsearchTemplate elasticsearchTemplate;
 
     /**
      * 分词
@@ -94,16 +105,116 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
-    /**
+
+    /*
      * 搜索商品
      * @param goodsSearchParam 搜索条件
      * @return
      */
     @Override
     public GoodsSearchResult search(GoodsSearchParam goodsSearchParam) {
-        
+        // 1.构造ES搜索条件
+        // 2.搜索
+        // 3.将查询结果封装为Page对象
+        // 4.封装结果对象
+        // 4.1 查询结果
+        // 4.2 查询查询参数
+        // 4.3 查询面板
         return null;
     }
+
+    /*
+     * 构造搜索条件
+     * @param goodsSearchParam 查询条件对象
+     * @return 搜索条件对象
+     */
+    public NativeQuery buildQuery(GoodsSearchParam goodsSearchParam) {
+        // 1.创建复杂查询条件对象
+        NativeQueryBuilder nativeQueryBuilder = new NativeQueryBuilder();
+        BoolQuery.Builder builder = new BoolQuery.Builder();
+
+        // 2.如果查询条件有关键词，关键词可以匹配商品名、副标题、品牌字段；否则查询所有商品
+        String keyword = goodsSearchParam.getKeyword();
+        if(!StringUtils.hasText(keyword)){
+            MatchAllQuery matchAllQuery = new MatchAllQuery.Builder().build();
+            builder.must(matchAllQuery._toQuery());
+        }else{
+            MultiMatchQuery multiMatchQuery = MultiMatchQuery.of(q -> q
+                    .query(keyword)
+                    .fields("goodsName", "caption", "brand"));
+            builder.must(multiMatchQuery._toQuery());
+        }
+        // 3.如果查询条件有品牌，则精准匹配品牌
+        String brand = goodsSearchParam.getBrand();
+        if(StringUtils.hasText(brand)){
+            TermQuery termQuery = TermQuery.of(q -> q
+                    .field("brand")
+                    .value(brand));
+            builder.must(termQuery._toQuery());
+        }
+        // 4.如果查询条件有价格，则匹配价格
+        Double highPrice = goodsSearchParam.getHighPrice();
+        Double lowPrice = goodsSearchParam.getLowPrice();
+        if(highPrice != null && highPrice != 0){
+            RangeQuery price = RangeQuery.of(q -> q
+                    .field("price")
+                    .lte(JsonData.of(highPrice)));
+            builder.must(price._toQuery());
+        }
+        if(lowPrice != null && lowPrice != 0){
+            RangeQuery price = RangeQuery.of(q -> q
+                    .field("price")
+                    .gte(JsonData.of(lowPrice)));
+            builder.must(price._toQuery());
+        }
+        // 5.如果查询条件有规格项，则精准匹配规格项
+        Map<String, String> specificationOption = goodsSearchParam.getSpecificationOption();
+        if(specificationOption != null && !specificationOption.isEmpty()){
+            Set<Map.Entry<String, String>> entrySet = specificationOption.entrySet();
+            for (Map.Entry<String, String> es : entrySet) {
+                String key = es.getKey();
+                String value = es.getValue();
+                TermQuery termQuery = TermQuery.of( q -> q
+                        .field("specification." + key + ".keyword")
+                        .value(value));
+                builder.must(termQuery._toQuery());
+            }
+        }
+        nativeQueryBuilder.withQuery(builder.build()._toQuery());
+        // 6.添加分页条件
+        PageRequest pageRequest = PageRequest.of(goodsSearchParam.getPage() - 1, goodsSearchParam.getSize());
+        nativeQueryBuilder.withPageable(pageRequest);
+        // 7.如果查询条件有排序，则添加排序条件
+        String sortFiled = goodsSearchParam.getSortFiled();  // 排序字段
+        String sort = goodsSearchParam.getSort();  // 排序方式
+        if (StringUtils.hasText(sortFiled) && StringUtils.hasText(sort)){
+            Sort sortParam = null;  // 组装好的排序规则
+            // 新品的正序是id的倒序
+            if (sortFiled.equals("NEW")){
+                if (sort.equals("ASC")){  // 升序
+                    sortParam = Sort.by(Sort.Direction.DESC, "id"); // id从小到大 → 旧商品在前
+                }
+                if (sort.equals("DESC")){  // 降序
+                    sortParam = Sort.by(Sort.Direction.ASC, "id"); // id从大到小 → 新商品在前
+                }
+            }
+            // 价格的正序是price的正序
+            if (sortFiled.equals("PRICE")){
+                if (sort.equals("ASC")){
+                    sortParam = Sort.by(Sort.Direction.ASC, "price");
+                }
+                if (sort.equals("DESC")){
+                    sortParam = Sort.by(Sort.Direction.DESC, "price");
+                }
+            }
+            nativeQueryBuilder.withSort(sortParam);
+        }
+
+        // 8.返回查询条件对象
+        return nativeQueryBuilder.build();
+    }
+
+
 
 
     /**
