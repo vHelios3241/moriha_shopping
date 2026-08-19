@@ -114,12 +114,24 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public GoodsSearchResult search(GoodsSearchParam goodsSearchParam) {
         // 1.构造ES搜索条件
+        NativeQuery query = buildQuery(goodsSearchParam);
         // 2.搜索
+        SearchHits<GoodsES> search = elasticsearchTemplate.search(query, GoodsES.class);
         // 3.将查询结果封装为Page对象
+        // 3.1 将SearchHits转为List
+        List<GoodsES> list = new ArrayList<>();
+        for (SearchHit<GoodsES> goodsESSearchHit : search) {
+            GoodsES content = goodsESSearchHit.getContent();
+            list.add(content);
+        }
+        // 3.2 将List转为MP的Page对象
+        Page<GoodsES> page = new Page<>();
+        page.setCurrent(goodsSearchParam.getPage())  //当前页
+                .setSize(goodsSearchParam.getSize()) //每页条数
+                .setTotal(search.getTotalHits())     //总条数
+                .setRecords(list);  //结果集
         // 4.封装结果对象
-        // 4.1 查询结果
-        // 4.2 查询查询参数
-        // 4.3 查询面板
+
         return null;
     }
 
