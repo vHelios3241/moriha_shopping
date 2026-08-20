@@ -131,8 +131,16 @@ public class SearchServiceImpl implements SearchService {
                 .setTotal(search.getTotalHits())     //总条数
                 .setRecords(list);  //结果集
         // 4.封装结果对象
+        // 4.1 查询结果
+        GoodsSearchResult result = new GoodsSearchResult();
+        // 当前页的商品数据 + 分页信息
+        result.setGoodsPage(page);
+        // 4.2 查询参数
+        result.setGoodsSearchParam(goodsSearchParam);
+        // 4.3 查询面板
+        buildSearchPanel(goodsSearchParam, result);
 
-        return null;
+        return result;
     }
 
     /*
@@ -226,7 +234,55 @@ public class SearchServiceImpl implements SearchService {
         return nativeQueryBuilder.build();
     }
 
-
+    /*
+      封装查询面板，即根据查询条件，找到查询结果关联度前20名的商品进行封装
+      @param goodsSearchParam
+     * @param goodsSearchResult
+     */
+    public void buildSearchPanel(GoodsSearchParam goodsSearchParam, GoodsSearchResult goodsSearchResult){
+        // 1.构造搜索条件
+        goodsSearchParam.setPage(1);
+        goodsSearchParam.setSize(20);
+        goodsSearchParam.setSort(null);
+        goodsSearchParam.setSortFiled(null);
+        NativeQuery nativeQuery = buildQuery(goodsSearchParam);
+        // 2.搜索
+        SearchHits<GoodsES> search = elasticsearchTemplate.search(nativeQuery, GoodsES.class);
+        // 3.将结果封装为List对象
+        List<GoodsES> list = new ArrayList<>();
+        for (SearchHit<GoodsES> goodsESSearchHit : search) {
+            GoodsES content = goodsESSearchHit.getContent();
+            list.add(content);
+        }
+        // 4.遍历集合，封装查询面板
+        // 商品相关的品牌列表
+        Set<String> brands = new HashSet<>();
+        // 商品相关的类型列表
+        Set<String> productType = new HashSet<>();
+        // 商品相关的规格列表
+        HashMap<String, Set<String>> specifications = new HashMap<>();
+        for (GoodsES l : list) {
+            // 获取品牌
+            brands.add(l.getBrand());
+            // 获取类型
+            productType.addAll(l.getProductType());
+            // 获取规格
+            Map<String, List<String>> specification = l.getSpecification();
+            Set<Map.Entry<String, List<String>>> entries = specification.entrySet();
+            for (Map.Entry<String, List<String>> entry : entries) {
+                String key = entry.getKey();
+                List<String> values = entry.getValue();
+                // 如果没有遍历出该规格，新增键值对，如果已经遍历出该规格，则向规格中添加规格项
+                if(!specifications.containsKey(key)){
+                    specifications.put(key, new HashSet(values)); // 新增键值对
+                }
+                specifications.get(key).addAll(values); // 向规格中添加规格项
+            }
+        }
+        goodsSearchResult.setBrands(brands);
+        goodsSearchResult.setProductType(productType);
+        goodsSearchResult.setSpecifications(specifications);
+    }
 
 
     /**
