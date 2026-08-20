@@ -1,13 +1,11 @@
 package com.moriha.shopping_search_customer_api.controller;
 
+import com.moriha.common.pojo.GoodsSearchParam;
+import com.moriha.common.pojo.GoodsSearchResult;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.SearchService;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.moriha.common.service.GoodsService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,10 +24,22 @@ public class GoodsSearchController {
      * @param keyword
      * @return
      */
-    @GetMapping("/autoSuggest")
+    @PostMapping("/autoSuggest")
     public BaseResult<List<String>> autoSuggest(String keyword){
         List<String> strings = searchService.autoSuggest(keyword);
         return BaseResult.ok(strings);
     }
+
+    /**
+     * 搜索商品
+     * @param goodsSearchParam 搜索条件
+     * @return 搜索结果
+     */
+    @GetMapping("/search")
+    public BaseResult<GoodsSearchResult> search(@RequestBody GoodsSearchParam goodsSearchParam){
+        GoodsSearchResult result = searchService.search(goodsSearchParam);
+        return BaseResult.ok(result);
+    }
+
 
 }
