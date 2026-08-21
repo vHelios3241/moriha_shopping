@@ -175,7 +175,57 @@
         AND bz_goods.productType2Id = type2.id
         AND bz_goods.productType3Id = type3.id
     </select>
-
+    <select id="findDesc" resultType="com.moriha.common.pojo.GoodsDesc">
+        SELECT
+        bz_goods.id bid,
+        bz_goods.goodsName goodsName,
+        bz_goods.caption caption,
+        bz_goods.price price,
+        bz_goods.headerPic headerPic,
+        bz_goods.introduction introduction,
+        bz_goods.isMarketable isMarketable,
+        bz_goods.brandId brandId,
+        bz_brand.`name` brandName,
+        type1.id type1Id,
+        type1.`name` type1Name,
+        type1.`level` type1Level,
+        type1.parentId type1ParentId,
+        type2.id type2Id,
+        type2.`name` type2Name,
+        type2.`level` type2Level,
+        type2.parentId type2ParentId,
+        type3.id type3Id,
+        type3.`name` type3Name,
+        type3.`level` type3Level,
+        type3.parentId type3ParentId,
+        bz_goods_image.id imageId,
+        bz_goods_image.imageTitle imageTitle,
+        bz_goods_image.imageUrl imageUrl,
+        bz_specification.id specificationId,
+        bz_specification.specName specName,
+        bz_specification.productTypeId productTypeId,
+        bz_specification_option.id optionId,
+        bz_specification_option.optionName optionName
+        FROM
+        bz_goods,
+        bz_goods_image,
+        bz_brand,
+        bz_specification,
+        bz_specification_option,
+        bz_goods_specification_option,
+        bz_product_type AS type1,
+        bz_product_type AS type2,
+        bz_product_type AS type3
+        WHERE bz_goods.id = bz_goods_specification_option.gid
+        AND bz_goods_specification_option.optionId = bz_specification_option.id
+        AND bz_specification.id = bz_specification_option.specId
+        AND bz_goods.brandId = bz_brand.id
+        AND bz_goods.id = bz_goods_image.goodsId
+        AND bz_goods.productType1Id = type1.id
+        AND bz_goods.productType2Id = type2.id
+        AND bz_goods.productType3Id = type3.id
+        AND bz_goods.id = #{id}
+    </select>
 
 
 </mapper>

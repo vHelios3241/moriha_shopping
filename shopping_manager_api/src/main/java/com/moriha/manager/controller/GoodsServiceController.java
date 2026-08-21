@@ -2,6 +2,7 @@ package com.moriha.manager.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Goods;
+import com.moriha.common.pojo.GoodsDesc;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.GoodsService;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -75,5 +76,15 @@ public class GoodsServiceController {
         return BaseResult.ok(page1);
     }
 
+    /**
+     * 根据id查询商品详情
+     * @param id
+     * return 商品详情
+     */
+    @GetMapping("/findDesc")
+    public BaseResult<GoodsDesc> findDesc(Long id) {
+        GoodsDesc goodsDesc = goodsService.findDesc(id);
+        return BaseResult.ok(goodsDesc);
+    }
 
 }

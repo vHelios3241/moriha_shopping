@@ -136,4 +136,14 @@ public class GoodsServiceImpl implements GoodsService {
     public List<GoodsDesc> findAll() {
         return goodsMapper.findAll();
     }
+
+    /**
+     * 根据id查询商品详情
+     * @param id
+     * @return
+     */
+    @Override
+    public GoodsDesc findDesc(Long id) {
+        return goodsMapper.findDesc(id);
+    }
 }

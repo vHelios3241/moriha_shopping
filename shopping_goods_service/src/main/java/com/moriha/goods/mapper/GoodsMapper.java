@@ -18,6 +18,8 @@ public interface GoodsMapper extends BaseMapper<Goods> {
     Goods findById(Long id);
     // 查询所有商品详情
     List<GoodsDesc> findAll();
+    // 根据id查询商品详情
+    GoodsDesc findDesc(Long id);
 
 }
 

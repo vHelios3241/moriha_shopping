@@ -22,5 +22,7 @@ public interface GoodsService {
     Page<Goods> search(Goods goods, int page, int size);
     // 查询所有商品详情
     List<GoodsDesc> findAll();
+    // 根据id查询商品详情
+    GoodsDesc findDesc(Long id);
 }
 
