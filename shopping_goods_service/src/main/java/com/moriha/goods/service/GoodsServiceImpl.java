@@ -54,7 +54,7 @@ public class GoodsServiceImpl implements GoodsService {
             goodsMapper.addGoodsSpecificationOption(goodsId, option.getId());
         }
         //4.将商品数据同步到es中
-        GoodsDesc goodsDesc = new GoodsDesc();
+        GoodsDesc goodsDesc = findDesc(goodsId);
         searchService.syncGoodsToES(goodsDesc);
     }
 
@@ -92,7 +92,7 @@ public class GoodsServiceImpl implements GoodsService {
             goodsMapper.addGoodsSpecificationOption(goodsId, option.getId());
         }
         // 将商品数据同步到es中
-        GoodsDesc goodsDesc = new GoodsDesc();
+        GoodsDesc goodsDesc = findDesc(goodsId);
         searchService.syncGoodsToES(goodsDesc);
     }
 
@@ -107,7 +107,7 @@ public class GoodsServiceImpl implements GoodsService {
         goodsMapper.putAway(id, isMarketable);
         // 上架时数据同步到ES，下架时删除ES数据
         if(isMarketable){
-            GoodsDesc goodsDesc = new GoodsDesc();
+            GoodsDesc goodsDesc = findDesc(id);
             searchService.syncGoodsToES(goodsDesc);
         }else{
             searchService.delete(id);
