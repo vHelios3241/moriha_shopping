@@ -4,10 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.*;
 import com.moriha.common.service.GoodsService;
-import com.moriha.common.service.SearchService;
 import com.moriha.goods.mapper.GoodsImageMapper;
 import com.moriha.goods.mapper.GoodsMapper;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
@@ -22,7 +22,12 @@ public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private GoodsImageMapper goodsImageMapper;
     @Autowired
-    private SearchService searchService;
+    private RocketMQTemplate rocketMQTemplate;
+
+    // 同步商品数据的主题
+    private final String SYNC_GOODS_TOPIC = "sync_goods_queue";
+    // 删除商品数据的主题
+    private final String DELETE_GOODS_TOPIC = "del_goods_queue";
 
     /**
      * 新增商品
@@ -55,7 +60,7 @@ public class GoodsServiceImpl implements GoodsService {
         }
         //4.将商品数据同步到es中
         GoodsDesc goodsDesc = findDesc(goodsId);
-        searchService.syncGoodsToES(goodsDesc);
+        rocketMQTemplate.syncSend(SYNC_GOODS_TOPIC, goodsDesc);
     }
 
     /**
@@ -93,7 +98,7 @@ public class GoodsServiceImpl implements GoodsService {
         }
         // 将商品数据同步到es中
         GoodsDesc goodsDesc = findDesc(goodsId);
-        searchService.syncGoodsToES(goodsDesc);
+        rocketMQTemplate.syncSend(SYNC_GOODS_TOPIC, goodsDesc);
     }
 
     /**
@@ -107,10 +112,10 @@ public class GoodsServiceImpl implements GoodsService {
         goodsMapper.putAway(id, isMarketable);
         // 上架时数据同步到ES，下架时删除ES数据
         if(isMarketable){
-            GoodsDesc goodsDesc = findDesc(id);
-            searchService.syncGoodsToES(goodsDesc);
+            GoodsDesc goodsDesc = new GoodsDesc();
+            rocketMQTemplate.syncSend(SYNC_GOODS_TOPIC, goodsDesc);
         }else{
-            searchService.delete(id);
+            rocketMQTemplate.syncSend(DELETE_GOODS_TOPIC, id);
         }
     }
 
