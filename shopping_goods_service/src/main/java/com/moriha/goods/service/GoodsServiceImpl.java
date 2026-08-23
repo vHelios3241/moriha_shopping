@@ -9,12 +9,14 @@ import com.moriha.goods.mapper.GoodsMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @DubboService
+@Transactional
 public class GoodsServiceImpl implements GoodsService {
 
     @Autowired
@@ -25,9 +27,9 @@ public class GoodsServiceImpl implements GoodsService {
     private RocketMQTemplate rocketMQTemplate;
 
     // 同步商品数据的主题
-    private final String SYNC_GOODS_TOPIC = "sync_goods_queue";
+    private final String SYNC_GOOD_QUEUE = "sync_goods_queue";
     // 删除商品数据的主题
-    private final String DELETE_GOODS_TOPIC = "del_goods_queue";
+    private final String DEL_GOOD_QUEUE = "del_goods_queue";
 
     /**
      * 新增商品
@@ -59,8 +61,9 @@ public class GoodsServiceImpl implements GoodsService {
             goodsMapper.addGoodsSpecificationOption(goodsId, option.getId());
         }
         //4.将商品数据同步到es中
+        // 将商品数据同步到es中
         GoodsDesc goodsDesc = findDesc(goodsId);
-        rocketMQTemplate.syncSend(SYNC_GOODS_TOPIC, goodsDesc);
+        rocketMQTemplate.syncSend(SYNC_GOOD_QUEUE, goodsDesc);
     }
 
     /**
@@ -97,8 +100,9 @@ public class GoodsServiceImpl implements GoodsService {
             goodsMapper.addGoodsSpecificationOption(goodsId, option.getId());
         }
         // 将商品数据同步到es中
+        // 将商品数据同步到es中
         GoodsDesc goodsDesc = findDesc(goodsId);
-        rocketMQTemplate.syncSend(SYNC_GOODS_TOPIC, goodsDesc);
+        rocketMQTemplate.syncSend(SYNC_GOOD_QUEUE, goodsDesc);
     }
 
     /**
@@ -113,9 +117,9 @@ public class GoodsServiceImpl implements GoodsService {
         // 上架时数据同步到ES，下架时删除ES数据
         if(isMarketable){
             GoodsDesc goodsDesc = new GoodsDesc();
-            rocketMQTemplate.syncSend(SYNC_GOODS_TOPIC, goodsDesc);
+            rocketMQTemplate.syncSend(SYNC_GOOD_QUEUE, goodsDesc);
         }else{
-            rocketMQTemplate.syncSend(DELETE_GOODS_TOPIC, id);
+            rocketMQTemplate.syncSend(DEL_GOOD_QUEUE, id);
         }
     }
 

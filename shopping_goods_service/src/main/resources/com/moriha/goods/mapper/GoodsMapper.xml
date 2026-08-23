@@ -175,7 +175,7 @@
         AND bz_goods.productType2Id = type2.id
         AND bz_goods.productType3Id = type3.id
     </select>
-    <select id="findDesc" resultType="com.moriha.common.pojo.GoodsDesc">
+    <select id="findDesc" resultMap="goodsDescMapper">
         SELECT
         bz_goods.id bid,
         bz_goods.goodsName goodsName,
