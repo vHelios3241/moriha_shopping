@@ -20,6 +20,8 @@
         <module>shopping_category_customer_api</module>
         <module>shopping_search_service</module>
         <module>shopping_search_customer_api</module>
+        <module>shopping_message_service</module>
+
     </modules>
 
     <properties>
