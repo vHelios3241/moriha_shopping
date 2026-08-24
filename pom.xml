@@ -21,7 +21,8 @@
         <module>shopping_search_service</module>
         <module>shopping_search_customer_api</module>
         <module>shopping_message_service</module>
-
+        <module>shopping_user_service</module>
+        <module>shopping_user_customer_api</module>
     </modules>
 
     <properties>
