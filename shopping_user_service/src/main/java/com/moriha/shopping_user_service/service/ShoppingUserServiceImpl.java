@@ -19,6 +19,8 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private ShoppingUserMapper shoppingUserMapper;
 
 
     /*
@@ -53,7 +55,26 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
      */
     @Override
     public void register(ShoppingUser shoppingUser) {
-
+        // 验证手机号是否存在
+        String phone = shoppingUser.getPhone();
+        QueryWrapper<ShoppingUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone", phone);
+        Long count = shoppingUserMapper.selectCount(queryWrapper);
+        if(count > 0){
+            throw new BusException(CodeEnum.REGISTER_REPEAT_PHONE_ERROR);
+        }
+        // 验证用户名是否存在
+        String username = shoppingUser.getUsername();
+        QueryWrapper<ShoppingUser> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.eq("username", username);
+        Long count1 = shoppingUserMapper.selectCount(queryWrapper1);
+        if(count1 > 0){
+            throw new BusException(CodeEnum.REGISTER_REPEAT_NAME_ERROR);
+        }
+        // 新增用户
+        shoppingUser.setStatus("Y");
+        shoppingUser.setPassword(Md5Util.encode(shoppingUser.getPassword()));
+        shoppingUserMapper.insert(shoppingUser);
     }
 
     /*

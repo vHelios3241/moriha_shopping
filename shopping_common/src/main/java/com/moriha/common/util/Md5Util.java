@@ -8,7 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 public class Md5Util {
     public final static String md5key = "BAIZHAN"; // 盐值
 
-    /**
+    /*
      * 加密
      * @param text 明文（比如用户输入的密码 123456）
      * @return 密文（一串32位十六进制字符串）
@@ -17,7 +17,7 @@ public class Md5Util {
         return DigestUtils.md5Hex(text + md5key);
     }
 
-    /**
+    /*
      * 验证
      * @param text 用户输入的明文密码
      * @param cipher 数据库存好的加密后的密文

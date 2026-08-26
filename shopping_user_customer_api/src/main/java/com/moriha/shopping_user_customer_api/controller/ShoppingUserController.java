@@ -49,4 +49,14 @@ public class ShoppingUserController {
         return BaseResult.ok();
     }
 
+    /**
+     * 用户注册
+     * @param shoppingUser 用户信息
+     * @return 注册结果
+     */
+    @PostMapping("/register")
+    public BaseResult register(@RequestBody ShoppingUser shoppingUser){
+        shoppingUserService.register(shoppingUser);
+        return BaseResult.ok();
+    }
 }
