@@ -1,13 +1,12 @@
 package com.moriha.shopping_user_customer_api.controller;
 
+import com.moriha.common.pojo.ShoppingUser;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.MessageService;
 import com.moriha.common.service.ShoppingUserService;
 import com.moriha.common.util.RandomUtil;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/user/shoppingUser")
@@ -38,5 +37,16 @@ public class ShoppingUserController {
         }
     }
 
+    /**
+     * 验证用户注册验证码
+     * @param phone 手机号
+     * @param checkCode 验证码
+     * @return 200验证成功，605验证码不正确
+     */
+    @GetMapping("/registerCheckCode")
+    public BaseResult register(String phone, String checkCode){
+        shoppingUserService.registerCheckCode(phone, checkCode);
+        return BaseResult.ok();
+    }
 
 }
