@@ -22,7 +22,6 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
     @Autowired
     private ShoppingUserMapper shoppingUserMapper;
 
-
     /*
      * 注册时 向redis保存手机号+验证码
      * @param phone
@@ -82,17 +81,28 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
      */
     @Override
     public String loginPassword(String username, String password) {
-        return "";
-    }
+        QueryWrapper<ShoppingUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username", username);
+        ShoppingUser shoppingUser = shoppingUserMapper.selectOne(queryWrapper);
+        if(shoppingUser == null){
+            throw new BusException(CodeEnum.LOGIN_NAME_PASSWORD_ERROR);
+        }
+        boolean verify = Md5Util.verify(password, shoppingUser.getPassword());
+        if (!verify) {
+            throw new BusException(CodeEnum.LOGIN_NAME_PASSWORD_ERROR);
+        }
 
-    @Override
-    public String loginCheckCode(String phone, String checkCode) {
-        return "";
+        return username;
     }
 
     @Override
     public void saveLoginCheckCode(String phone, String checkCode) {
 
+    }
+
+    @Override
+    public String loginCheckCode(String phone, String checkCode) {
+        return "";
     }
 
     @Override

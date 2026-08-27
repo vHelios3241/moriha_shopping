@@ -17,7 +17,7 @@ public class ShoppingUserController {
     @DubboReference
     private MessageService messageService;
 
-    /**
+    /*
      * 发送注册短信
      * @param phone 注册手机号
      * @return 操作结果
@@ -37,7 +37,7 @@ public class ShoppingUserController {
         }
     }
 
-    /**
+    /*
      * 验证用户注册验证码
      * @param phone 手机号
      * @param checkCode 验证码
@@ -49,7 +49,7 @@ public class ShoppingUserController {
         return BaseResult.ok();
     }
 
-    /**
+    /*
      * 用户注册
      * @param shoppingUser 用户信息
      * @return 注册结果
@@ -59,4 +59,17 @@ public class ShoppingUserController {
         shoppingUserService.register(shoppingUser);
         return BaseResult.ok();
     }
+
+    /*
+     * 用户名密码登录
+     * @param shoppingUser 用户对象
+     * @return 登录结果
+     */
+    @PostMapping("/loginPassword")
+    public BaseResult loginPassword(@RequestBody ShoppingUser shoppingUser){
+        shoppingUserService.loginPassword(shoppingUser.getUsername(), shoppingUser.getPassword());
+        return BaseResult.ok();
+    }
+
+
 }

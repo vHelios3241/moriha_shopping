@@ -16,7 +16,8 @@ public interface ShoppingUserService {
     // 用户名+密码 登录
     String loginPassword(String username, String password);
     // 手机号+验证码 登录
-    String loginCheckCode(String phone, String checkCode);    // 登录时向redis保存手机号+验证码
+    String loginCheckCode(String phone, String checkCode);
+    // 登录时向redis保存手机号+验证码
     void saveLoginCheckCode(String phone,String checkCode);
 
     // 获取登录用户名
