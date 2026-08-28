@@ -107,9 +107,26 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
         valueOperations.set("loginCode:" + phone, checkCode, 300, TimeUnit.SECONDS);
     }
 
+    /*
+     * 手机号+验证码 登录
+     * @param phone
+     * @param checkCode
+     * @return
+     */
     @Override
     public String loginCheckCode(String phone, String checkCode) {
-        return "";
+        // 验证用户传入的手机号验证码是否在redis中存在
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        Object checkCodeRedis = valueOperations.get("loginCode:" + phone);
+        if (!checkCode.equals(checkCodeRedis)) {
+            throw new BusException(CodeEnum.LOGIN_CODE_ERROR);
+        }
+        // 登录成功，查询用户
+        QueryWrapper<ShoppingUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone", phone);
+        ShoppingUser shoppingUser = shoppingUserMapper.selectOne(queryWrapper);
+        // 返回用户名
+        return shoppingUser.getUsername();
     }
 
     @Override

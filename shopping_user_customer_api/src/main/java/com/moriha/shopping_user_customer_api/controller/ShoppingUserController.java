@@ -92,5 +92,15 @@ public class ShoppingUserController {
         }
     }
 
-
+    /*
+     * 手机号验证码登录
+     * @param phone 手机号
+     * @param checkCode 验证码
+     * @return 登录结果
+     */
+    @PostMapping("/loginCheckCode")
+    public BaseResult loginCheckCode(String phone, String checkCode){
+        shoppingUserService.loginCheckCode(phone, checkCode);
+        return BaseResult.ok();
+    }
 }
