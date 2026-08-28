@@ -95,9 +95,16 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
         return username;
     }
 
+    /*
+     * 登录时向redis保存手机号+验证码
+     * @param phone
+     * @param checkCode
+     */
     @Override
     public void saveLoginCheckCode(String phone, String checkCode) {
-
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        // redis键为手机号，值为验证码，过期时间5分钟
+        valueOperations.set("loginCode:" + phone, checkCode, 300, TimeUnit.SECONDS);
     }
 
     @Override

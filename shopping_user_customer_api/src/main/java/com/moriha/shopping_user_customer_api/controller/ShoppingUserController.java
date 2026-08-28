@@ -71,5 +71,26 @@ public class ShoppingUserController {
         return BaseResult.ok();
     }
 
+    /*
+     * 发送登录短信验证码
+     *
+     * @param phone 手机号
+     * @return 操作结果
+     */
+    @GetMapping("/sendLoginCheckCode")
+    public BaseResult sendLoginCheckCode(String phone){
+        // 1.生成随机四位数
+        String code = RandomUtil.buildCheckCode(4);
+        // 2.发送短信
+        BaseResult baseResult = messageService.sendMessage(phone, code);
+        // 3.发送成功，将验证码保存到redis中；发送失败，返回发送结果
+        if (200 == baseResult.getCode()){
+            shoppingUserService.saveLoginCheckCode(phone, code);
+            return BaseResult.ok();
+        }else{
+            return baseResult;
+        }
+    }
+
 
 }
