@@ -24,4 +24,7 @@ public interface ShoppingUserService {
     String getName(String token);
     // 根据id获取用户
     ShoppingUser getLoginUser(Long id);
+
+    //判断用户手机号是否存在，状态是否正常
+    void checkPhone(String phone);
 }

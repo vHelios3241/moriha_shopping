@@ -79,6 +79,8 @@ public class ShoppingUserController {
      */
     @GetMapping("/sendLoginCheckCode")
     public BaseResult sendLoginCheckCode(String phone){
+        // 0.判断用户手机号是否存在，状态是否正常
+        shoppingUserService.checkPhone(phone);
         // 1.生成随机四位数
         String code = RandomUtil.buildCheckCode(4);
         // 2.发送短信

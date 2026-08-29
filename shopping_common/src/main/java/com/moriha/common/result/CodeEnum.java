@@ -18,6 +18,8 @@ public enum CodeEnum {
     REGISTER_REPEAT_NAME_ERROR(607, "用户名已存在"),
     LOGIN_NAME_PASSWORD_ERROR(608, "用户名或密码错误"),
     LOGIN_CODE_ERROR(609, "验证码错误"),
+    LOGIN_NOPHONE_ERROR(610, "手机号不存在"),
+    LOGIN_USER_STATUS_ERROR(611, "该用户状态异常"),
     ;
 
     private final Integer code;

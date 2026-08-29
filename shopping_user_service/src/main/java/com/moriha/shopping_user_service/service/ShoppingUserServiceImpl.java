@@ -138,4 +138,23 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
     public ShoppingUser getLoginUser(Long id) {
         return null;
     }
+
+    /*
+     * 判断用户手机号是否存在，状态是否正常
+     * @param phone
+     */
+    @Override
+    public void checkPhone(String phone) {
+        // 手机号是否存在
+        QueryWrapper<ShoppingUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("phone", phone);
+        ShoppingUser shoppingUser = shoppingUserMapper.selectOne(queryWrapper);
+        if(shoppingUser == null){
+            throw new BusException(CodeEnum.LOGIN_NOPHONE_ERROR);
+        }
+        // 用户状态是否正常
+        if(!"Y".equals(shoppingUser.getStatus())){
+            throw new BusException(CodeEnum.LOGIN_USER_STATUS_ERROR);
+        }
+    }
 }
