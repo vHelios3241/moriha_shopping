@@ -67,8 +67,9 @@ public class ShoppingUserController {
      */
     @PostMapping("/loginPassword")
     public BaseResult loginPassword(@RequestBody ShoppingUser shoppingUser){
-        shoppingUserService.loginPassword(shoppingUser.getUsername(), shoppingUser.getPassword());
-        return BaseResult.ok();
+        String sign = shoppingUserService.loginPassword(shoppingUser.getUsername(), shoppingUser.getUsername());
+        // 返回JWT令牌
+        return BaseResult.ok(sign);
     }
 
     /*
@@ -102,7 +103,8 @@ public class ShoppingUserController {
      */
     @PostMapping("/loginCheckCode")
     public BaseResult loginCheckCode(String phone, String checkCode){
-        shoppingUserService.loginCheckCode(phone, checkCode);
-        return BaseResult.ok();
+        String sign = shoppingUserService.loginCheckCode(phone, checkCode);
+        // 返回JWT令牌
+        return BaseResult.ok(sign);
     }
 }

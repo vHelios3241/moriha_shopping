@@ -7,6 +7,7 @@ import com.moriha.common.result.CodeEnum;
 import com.moriha.common.service.ShoppingUserService;
 import com.moriha.common.util.Md5Util;
 import com.moriha.shopping_user_service.mapper.ShoppingUserMapper;
+import com.moriha.shopping_user_service.util.JwtUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -81,18 +82,22 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
      */
     @Override
     public String loginPassword(String username, String password) {
+        // 1.验证用户名
         QueryWrapper<ShoppingUser> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
         ShoppingUser shoppingUser = shoppingUserMapper.selectOne(queryWrapper);
         if(shoppingUser == null){
             throw new BusException(CodeEnum.LOGIN_NAME_PASSWORD_ERROR);
         }
+        // 2.验证密码
         boolean verify = Md5Util.verify(password, shoppingUser.getPassword());
         if (!verify) {
             throw new BusException(CodeEnum.LOGIN_NAME_PASSWORD_ERROR);
         }
+        // 3.生成JWT令牌，返回令牌
+        String token = JwtUtils.sign(shoppingUser.getId(), shoppingUser.getUsername());
 
-        return username;
+        return token;
     }
 
     /*
@@ -125,8 +130,10 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
         QueryWrapper<ShoppingUser> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("phone", phone);
         ShoppingUser shoppingUser = shoppingUserMapper.selectOne(queryWrapper);
-        // 返回用户名
-        return shoppingUser.getUsername();
+        // 生成JWT令牌，返回令牌
+        String token = JwtUtils.sign(shoppingUser.getId(), shoppingUser.getUsername());
+
+        return token;
     }
 
     @Override
