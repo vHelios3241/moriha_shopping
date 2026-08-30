@@ -22,7 +22,7 @@ public class JwtUtils {
   public final static String PUBLIC_JSON = "{\"kty\":\"RSA\",\"n\":\"n5WbkHM17prgPdtW8QNk18UKhExXEqb--R16K_gHzKMNWykjTzoyt4b1UlcnTzZpSmZL4b9hkOfcRS5Orij85VMHn70UQS8mJ9-2GpjJcHHUGnDM28-KpyYBLcrg1LfqVTFBwEqEkVAzGMP8nXZnnJWXGt52g0bVWqj2r8HgQvnvyYaUwUsQR4Hf6v5pZ6jVpWC1gYFNFDT37xIFQIlXa1Qos7TsmD8bVXCJd8QwJhZJmXRLIyw0BwqVG8BXphHhgtSJAC4ZlTFSrxoItHwnqDqIcje7G5456t9GiQwzU_J-gpgBfA6UcG3y6jNea_TXNh3WQ1z9nRKK1j0qkGLQ_Q\",\"e\":\"AQAB\"}";
 
 
-  /**
+  /*
    * 生成token
    *
    * @param userId    用户id
@@ -77,7 +77,7 @@ public class JwtUtils {
 
 
 
-  /**
+  /*
    * 解密token，获取token中的信息
    *
    * @param token

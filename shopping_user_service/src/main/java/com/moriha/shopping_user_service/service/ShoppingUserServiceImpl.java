@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @DubboService
@@ -136,14 +137,30 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
         return token;
     }
 
+    /*
+     * 根据令牌获取用户名
+     */
     @Override
     public String getName(String token) {
-        return "";
+        Map<String, Object> verify = JwtUtils.verify(token);
+        String username = (String) verify.get("username");
+        return username;
     }
 
+    /*
+     * 根据令牌获取用户信息
+     */
     @Override
-    public ShoppingUser getLoginUser(Long id) {
-        return null;
+    public ShoppingUser getLoginUser(String token) {
+        // 从令牌中获取用户id
+        Map<String, Object> verify = JwtUtils.verify(token);
+        Long userId = (Long) verify.get("userId");
+        // 根据id查询用户
+        QueryWrapper<ShoppingUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", userId);
+        ShoppingUser shoppingUser = shoppingUserMapper.selectOne(queryWrapper);
+        return shoppingUser;
+
     }
 
     /*

@@ -107,4 +107,19 @@ public class ShoppingUserController {
         // 返回JWT令牌
         return BaseResult.ok(sign);
     }
+
+    /*
+     * 获取登录的用户名
+     * @param authorization 令牌
+     * @return 用户名
+     * 从HTTP请求头拿名字叫`authorization`的值。
+     */
+    @GetMapping("/getName")
+    public BaseResult<String> getName(@RequestHeader("authorization") String authorization){
+        // 删掉请求头里的Bearer前缀，剥离出原始token
+        String bearer = authorization.replace("Bearer", "");
+        // 拿着纯净的token调用业务层，查询用户名
+        String name = shoppingUserService.getName(bearer);
+        return BaseResult.ok(name);
+    }
 }

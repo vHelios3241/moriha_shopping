@@ -23,7 +23,7 @@ public interface ShoppingUserService {
     // 获取登录用户名
     String getName(String token);
     // 根据id获取用户
-    ShoppingUser getLoginUser(Long id);
+    ShoppingUser getLoginUser(String token);
 
     //判断用户手机号是否存在，状态是否正常
     void checkPhone(String phone);
