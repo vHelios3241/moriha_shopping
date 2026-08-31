@@ -16,9 +16,26 @@ public class CartServiceImpl implements CartService {
     private RedisTemplate redisTemplate;
 
 
+    /*
+     * 添加商品到购物车
+     */
     @Override
     public void addCart(Long userId, CartGoods cartGoods) {
+        // 1.获取购物车列表
+        List<CartGoods> cartList = findCartList(userId);
+        // 2.查询购物车是否有该商品，如果有商品，添加商品数量
+        for (CartGoods goods : cartList) {
+            if (goods.getGoodId().equals(cartGoods.getGoodId())){
+                int newNum = goods.getNum() + cartGoods.getNum();
+                goods.setNum(newNum);
+                redisTemplate.boundHashOps("cartList").put(userId, cartList);
+                return;
+            }
+            // 3.如果没有该商品，添加商品
+            cartList.add(cartGoods);
+            redisTemplate.boundHashOps("cartList").put(userId, cartList);
 
+        }
     }
 
     @Override
