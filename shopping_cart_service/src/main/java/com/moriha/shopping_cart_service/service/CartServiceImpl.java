@@ -59,9 +59,24 @@ public class CartServiceImpl implements CartService {
         redisTemplate.boundHashOps("cartList").put(userId, cartList);
     }
 
+    /*
+     * 删除购物车商品
+     * @param userId
+     * @param goodId
+     */
     @Override
     public void deleteCartOption(Long userId, Long goodId) {
-
+        // 1.获取购物车列表
+        List<CartGoods> cartList = findCartList(userId);
+        // 2.遍历列表找到对应商品并删除
+        for (CartGoods cartGoods : cartList) {
+            if(goodId.equals(cartGoods.getGoodId())){
+                cartList.remove(cartGoods);
+                break;
+            }
+        }
+        // 3.将新的购物车列表保存到redis中
+        redisTemplate.boundHashOps("cartList").put(userId, cartList);
     }
 
     /*
