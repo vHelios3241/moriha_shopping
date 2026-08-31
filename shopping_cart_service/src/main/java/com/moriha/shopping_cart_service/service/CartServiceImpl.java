@@ -38,9 +38,25 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    /*
+     * 修改购物车商品数量
+     * @param userId
+     * @param goodId
+     * @param num
+     */
     @Override
     public void handleCart(Long userId, Long goodId, Integer num) {
-
+        // 1.获取购物车列表
+        List<CartGoods> cartList = findCartList(userId);
+        // 2.遍历列表找到对应商品
+        for (CartGoods cartGoods : cartList) {
+            if (goodId.equals(cartGoods.getGoodId())){
+                cartGoods.setNum(num);
+                break;
+            }
+        }
+        // 3.将新的购物车列表保存到redis中
+        redisTemplate.boundHashOps("cartList").put(userId, cartList);
     }
 
     @Override
