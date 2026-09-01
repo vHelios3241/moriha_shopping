@@ -28,7 +28,7 @@ public class CartServiceImpl implements CartService {
         List<CartGoods> cartList = findCartList(userId);
         // 2.查询购物车是否有该商品，如果有商品，添加商品数量
         for (CartGoods goods : cartList) {
-            if (goods.getGoodId().equals(cartGoods.getGoodId())){
+            if (goods.getGoodId().equals(cartGoods.getGoodId())) {
                 int newNum = goods.getNum() + cartGoods.getNum();
                 goods.setNum(newNum);
                 redisTemplate.boundHashOps("cartList").put(userId, cartList);
@@ -53,7 +53,7 @@ public class CartServiceImpl implements CartService {
         List<CartGoods> cartList = findCartList(userId);
         // 2.遍历列表找到对应商品
         for (CartGoods cartGoods : cartList) {
-            if (goodId.equals(cartGoods.getGoodId())){
+            if (goodId.equals(cartGoods.getGoodId())) {
                 cartGoods.setNum(num);
                 break;
             }
@@ -73,7 +73,7 @@ public class CartServiceImpl implements CartService {
         List<CartGoods> cartList = findCartList(userId);
         // 2.遍历列表找到对应商品并删除
         for (CartGoods cartGoods : cartList) {
-            if(goodId.equals(cartGoods.getGoodId())){
+            if (goodId.equals(cartGoods.getGoodId())) {
                 cartList.remove(cartGoods);
                 break;
             }
@@ -105,12 +105,12 @@ public class CartServiceImpl implements CartService {
     public void refreshCartGoods(CartGoods cartGoods) {
         // 获取所有用户的购物车
         BoundHashOperations cartList = redisTemplate.boundHashOps("cartList");
-        Map<Long,List<CartGoods>> allCartGoods = cartList.entries();
+        Map<Long, List<CartGoods>> allCartGoods = cartList.entries();
         Collection<List<CartGoods>> values = allCartGoods.values();
         // 遍历所有用户购物车并更新商品信息
         for (List<CartGoods> value : values) {
             for (CartGoods goods : value) {
-                if(goods.getGoodId().equals(cartGoods.getGoodId())){
+                if (goods.getGoodId().equals(cartGoods.getGoodId())) {
                     goods.setGoodsName(cartGoods.getGoodsName());
                     goods.setHeaderPic(cartGoods.getHeaderPic());
                     goods.setPrice(cartGoods.getPrice());
@@ -123,8 +123,32 @@ public class CartServiceImpl implements CartService {
     }
 
 
+    /*
+     * 删除所有用户购物车商品
+     * @param goodId
+     */
     @Override
     public void deleteCartGoods(Long goodId) {
-
+        // 获取所有用户购物车
+        BoundHashOperations cartList = redisTemplate.boundHashOps("cartList");
+        Map<Long, List<CartGoods>> allCartGoods = cartList.entries();
+        Collection<List<CartGoods>> values = allCartGoods.values();
+        // 遍历所有用户购物车并删除已下架的商品
+        for (List<CartGoods> goodsList : values) {
+            for (CartGoods goods : goodsList) {
+                if (goods.getGoodId().equals(goodId)){
+                    goodsList.remove(goods);
+                    break;
+                }
+            }
+        }
+        // 将改变后所有用户购物车重新放入redis
+        redisTemplate.delete("cartList");
+        redisTemplate.boundHashOps("cartList").putAll(allCartGoods);
     }
+
+
+
+
 }
+
