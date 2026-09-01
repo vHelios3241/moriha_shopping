@@ -4,10 +4,13 @@ import com.moriha.common.pojo.CartGoods;
 import com.moriha.common.service.CartService;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @DubboService
 public class CartServiceImpl implements CartService {
@@ -94,10 +97,31 @@ public class CartServiceImpl implements CartService {
         }
     }
 
+    /*
+     * 修改所有用户购物车商品
+     * @param cartGoods
+     */
     @Override
     public void refreshCartGoods(CartGoods cartGoods) {
-
+        // 获取所有用户的购物车
+        BoundHashOperations cartList = redisTemplate.boundHashOps("cartList");
+        Map<Long,List<CartGoods>> allCartGoods = cartList.entries();
+        Collection<List<CartGoods>> values = allCartGoods.values();
+        // 遍历所有用户购物车并更新商品信息
+        for (List<CartGoods> value : values) {
+            for (CartGoods goods : value) {
+                if(goods.getGoodId().equals(cartGoods.getGoodId())){
+                    goods.setGoodsName(cartGoods.getGoodsName());
+                    goods.setHeaderPic(cartGoods.getHeaderPic());
+                    goods.setPrice(cartGoods.getPrice());
+                }
+            }
+        }
+        // 将改变后所有用户购物车重新放入redis
+        redisTemplate.delete("cartList");
+        redisTemplate.boundHashOps("cartList").putAll(allCartGoods);
     }
+
 
     @Override
     public void deleteCartGoods(Long goodId) {
