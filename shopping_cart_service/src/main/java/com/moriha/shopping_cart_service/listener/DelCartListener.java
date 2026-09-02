@@ -1,6 +1,5 @@
 package com.moriha.shopping_cart_service.listener;
 
-import com.moriha.common.pojo.CartGoods;
 import com.moriha.common.service.CartService;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
