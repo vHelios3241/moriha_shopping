@@ -124,10 +124,14 @@ public class GoodsServiceImpl implements GoodsService {
         goodsMapper.putAway(id, isMarketable);
         // 上架时数据同步到ES，下架时删除ES数据
         if(isMarketable){
-            GoodsDesc goodsDesc = new GoodsDesc();
+            // 将商品数据同步到ES中
+            GoodsDesc goodsDesc = findDesc(id);
             rocketMQTemplate.syncSend(SYNC_GOOD_QUEUE, goodsDesc);
         }else{
+            // 删除商品数据同步到ES中
             rocketMQTemplate.syncSend(DEL_GOOD_QUEUE, id);
+            // 删除商品数据同步到购物车中
+            rocketMQTemplate.syncSend(DEL_CART_QUEUE, id);
         }
     }
 
