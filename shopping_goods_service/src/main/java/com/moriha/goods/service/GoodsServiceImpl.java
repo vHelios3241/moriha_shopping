@@ -30,10 +30,13 @@ public class GoodsServiceImpl implements GoodsService {
     private final String SYNC_GOOD_QUEUE = "sync_goods_queue";
     // 删除商品数据的主题
     private final String DEL_GOOD_QUEUE = "del_goods_queue";
+    // 同步商品到购物车主题
+    private final String SYNC_CART_QUEUE = "sync_cart_queue";
+    // 删除商品到购物车主题
+    private final String DEL_CART_QUEUE = "del_cart_queue";
 
-    /**
+    /*
      * 新增商品
-     *
      * @param goods
      */
     @Override
@@ -61,14 +64,12 @@ public class GoodsServiceImpl implements GoodsService {
             goodsMapper.addGoodsSpecificationOption(goodsId, option.getId());
         }
         //4.将商品数据同步到es中
-        // 将商品数据同步到es中
         GoodsDesc goodsDesc = findDesc(goodsId);
         rocketMQTemplate.syncSend(SYNC_GOOD_QUEUE, goodsDesc);
     }
 
-    /**
+    /*
      * 修改商品
-     *
      * @param goods
      */
     @Override
@@ -99,15 +100,22 @@ public class GoodsServiceImpl implements GoodsService {
         for (SpecificationOption option : options) {
             goodsMapper.addGoodsSpecificationOption(goodsId, option.getId());
         }
-        // 将商品数据同步到es中
+
         // 将商品数据同步到es中
         GoodsDesc goodsDesc = findDesc(goodsId);
         rocketMQTemplate.syncSend(SYNC_GOOD_QUEUE, goodsDesc);
+
+        // 将商品数据同步到购物车中
+        CartGoods cartGoods = new CartGoods();
+        cartGoods.setGoodId(goods.getId());
+        cartGoods.setGoodsName(goods.getGoodsName());
+        cartGoods.setHeaderPic(goods.getHeaderPic());
+        cartGoods.setPrice(goods.getPrice());
+        rocketMQTemplate.syncSend(SYNC_CART_QUEUE, cartGoods);
     }
 
-    /**
+    /*
      * 上下架商品
-     *
      * @param id
      * @param isMarketable
      */
@@ -123,9 +131,8 @@ public class GoodsServiceImpl implements GoodsService {
         }
     }
 
-    /**
+    /*
      * 根据id查询商品
-     *
      * @param id
      * @return
      */
@@ -134,9 +141,8 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsMapper.findById(id);
     }
 
-    /**
+    /*
      * 根据条件查询商品列表
-     *
      * @param goods
      * @param page
      * @param size
@@ -153,7 +159,7 @@ public class GoodsServiceImpl implements GoodsService {
         return page1;
     }
 
-    /**
+    /*
      * 查询所有商品详情
      * @return
      */
@@ -162,7 +168,7 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsMapper.findAll();
     }
 
-    /**
+    /*
      * 根据id查询商品详情
      * @param id
      * @return
