@@ -117,7 +117,7 @@ public class SearchServiceImpl implements SearchService {
         NativeQuery query = buildQuery(goodsSearchParam);
         // 2.搜索
         SearchHits<GoodsES> search = elasticsearchTemplate.search(query, GoodsES.class);
-        // 3.将查询结果封装为Page对象
+        // 3.将查询结果封装为Mybatis-plus的Page对象
         // 3.1 将SearchHits转为List
         List<GoodsES> list = new ArrayList<>();
         for (SearchHit<GoodsES> goodsESSearchHit : search) {

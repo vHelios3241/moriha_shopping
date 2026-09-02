@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * 监听同步商品消息
  */
 @Service
-@RocketMQMessageListener(topic = "sync_goods_topic", consumerGroup = "sync_goods_group")
+@RocketMQMessageListener(topic = "sync_goods_queue", consumerGroup = "sync_goods_group")
 public class SyncGoodsListener implements RocketMQListener<GoodsDesc> {
 
     @Autowired
