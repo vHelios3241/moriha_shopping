@@ -91,6 +91,13 @@
                 <artifactId>mybatis-plus-boot-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
+
+            <!-- Spring Security (提供BCryptPasswordEncoder) -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-security</artifactId>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

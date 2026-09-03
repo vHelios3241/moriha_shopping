@@ -5,7 +5,7 @@ import com.moriha.common.pojo.ShoppingUser;
 import com.moriha.common.result.BusException;
 import com.moriha.common.result.CodeEnum;
 import com.moriha.common.service.ShoppingUserService;
-import com.moriha.common.util.Md5Util;
+import com.moriha.common.util.BCryptUtil;
 import com.moriha.shopping_user_service.mapper.ShoppingUserMapper;
 import com.moriha.shopping_user_service.util.JwtUtils;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -74,7 +74,7 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
         }
         // 新增用户
         shoppingUser.setStatus("Y");
-        shoppingUser.setPassword(Md5Util.encode(shoppingUser.getPassword()));
+        shoppingUser.setPassword(BCryptUtil.encode(shoppingUser.getPassword()));
         shoppingUserMapper.insert(shoppingUser);
     }
 
@@ -91,7 +91,7 @@ public class ShoppingUserServiceImpl implements ShoppingUserService {
             throw new BusException(CodeEnum.LOGIN_NAME_PASSWORD_ERROR);
         }
         // 2.验证密码
-        boolean verify = Md5Util.verify(password, shoppingUser.getPassword());
+        boolean verify = BCryptUtil.verify(password, shoppingUser.getPassword());
         if (!verify) {
             throw new BusException(CodeEnum.LOGIN_NAME_PASSWORD_ERROR);
         }
