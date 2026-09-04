@@ -37,6 +37,8 @@
         <spring-cloud-alibaba.version>2022.0.0.0</spring-cloud-alibaba.version>
         <lombok.version>1.18.28</lombok.version>
         <mybatis-plus.version>3.5.4</mybatis-plus.version>
+        <module>shopping_order_service</module>
+        <module>shopping_order_customer_api</module>
     </properties>
 
     <!-- 依赖版本声明 -->
