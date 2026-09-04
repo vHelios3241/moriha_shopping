@@ -67,7 +67,7 @@ public class ShoppingUserController {
      */
     @PostMapping("/loginPassword")
     public BaseResult loginPassword(@RequestBody ShoppingUser shoppingUser){
-        String sign = shoppingUserService.loginPassword(shoppingUser.getUsername(), shoppingUser.getUsername());
+        String sign = shoppingUserService.loginPassword(shoppingUser.getUsername(), shoppingUser.getPassword());
         // 返回JWT令牌
         return BaseResult.ok(sign);
     }
