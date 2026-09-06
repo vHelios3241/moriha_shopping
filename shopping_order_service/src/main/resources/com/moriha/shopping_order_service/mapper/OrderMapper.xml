@@ -43,4 +43,11 @@
         WHERE bz_orders.id = #{id}
     </select>
 
+    <select id="findUserOrders" parameterType="string" resultType="com.moriha.common.pojo.Orders">
+        SELECT * FROM bz_orders
+        LEFT JOIN bz_cart_goods
+        ON bz_orders.id = bz_cart_goods.orderId
+        WHERE bz_orders.userId = #{userId}
+    </select>
+
 </mapper>

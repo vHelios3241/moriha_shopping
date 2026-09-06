@@ -53,9 +53,12 @@ public class OrdersServiceImpl implements OrdersService {
         return orders;
     }
 
+    /*
+     * 修改订单
+     */
     @Override
     public void update(Orders orders) {
-
+        ordersMapper.updateById(orders);
     }
 
     /*
@@ -66,8 +69,11 @@ public class OrdersServiceImpl implements OrdersService {
         return ordersMapper.findById(id);
     }
 
+    /*
+     * 查询用户订单
+     */
     @Override
     public List<Orders> findUserOrders(Long userId, Integer status) {
-        return List.of();
+        return ordersMapper.findUserOrders(userId, status);
     }
 }
