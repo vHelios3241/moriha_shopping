@@ -8,8 +8,8 @@ public interface OrdersService {
     Orders add(Orders orders);
     // 修改订单
     void update(Orders orders);
-    // 根据id查询订单
+    // 根据id查询订单详情
     Orders findById(String id);
-    // 查询所有订单
+    // 查询用户订单
     List<Orders> findUserOrders(Long userId, Integer status);
 }

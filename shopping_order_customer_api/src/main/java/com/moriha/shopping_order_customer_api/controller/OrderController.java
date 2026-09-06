@@ -19,7 +19,7 @@ public class OrderController {
     @DubboReference
     private CartService cartService;
 
-    /**
+    /*
      * 添加订单
      * @param orders
      * @param userId
@@ -37,4 +37,25 @@ public class OrderController {
         }
         return BaseResult.ok(add);
     }
+
+    /*
+     * 查询用户的订单
+     * @param status 订单状态：1.未付款 2.已付款 3.未发货 4.已发货 5.交易成功 6.交易关闭 7.待评价，传入空值代表查询所有
+     * @param userId 用户id
+     * @return 查询结果
+     */
+    @GetMapping("/findUserOrders")
+    public BaseResult<List<Orders>> findUserOrders( Long userId,  Integer status){
+        return BaseResult.ok(ordersService.findUserOrders(userId, status));
+    }
+    /*
+     * 查询订单详情
+     * @param id
+     * @return
+     */
+    @GetMapping("/findById")
+    public BaseResult<Orders> findById(String id){
+        return BaseResult.ok(ordersService.findById(id));
+    }
+
 }
