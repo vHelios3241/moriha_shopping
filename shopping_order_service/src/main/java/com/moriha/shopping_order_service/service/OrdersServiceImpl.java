@@ -58,9 +58,12 @@ public class OrdersServiceImpl implements OrdersService {
 
     }
 
+    /*
+     * 查询订单详情
+     */
     @Override
     public Orders findById(String id) {
-        return null;
+        return ordersMapper.findById(id);
     }
 
     @Override
