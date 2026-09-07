@@ -11,20 +11,40 @@
 
     <!-- 子模块 -->
     <modules>
+        <!--  通用模块，包含实体类，服务接口，工具类等  -->
         <module>shopping_common</module>
-        <module>shopping_admin_service</module>
-        <module>shopping_manager_api</module>
+        <!--  商品服务  -->
         <module>shopping_goods_service</module>
+        <!--  管理员管理网站操作的api  -->
+        <module>shopping_manager_api</module>
+        <!--  管理员服务  -->
+        <module>shopping_admin_service</module>
+        <!--  文件服务  -->
         <module>shopping_file_service</module>
+        <!--  广告服务  -->
         <module>shopping_category_service</module>
+        <!--  网站用户操作广告的api  -->
         <module>shopping_category_customer_api</module>
+        <!--  搜索服务  -->
         <module>shopping_search_service</module>
+        <!--  用户搜索的api  -->
         <module>shopping_search_customer_api</module>
+        <!--  短信服务  -->
         <module>shopping_message_service</module>
+        <!--  用户服务  -->
         <module>shopping_user_service</module>
+        <!--  用户api  -->
         <module>shopping_user_customer_api</module>
+        <!--  购物车服务  -->
         <module>shopping_cart_service</module>
+        <!--  购物车api  -->
         <module>shopping_cart_customer_api</module>
+        <!--  订单服务  -->
+        <module>shopping_order_service</module>
+        <!--  订单api  -->
+        <module>shopping_order_customer_api</module>
+        <!--  支付服务  -->
+        <module>shopping_pay_service</module>
     </modules>
 
     <properties>
