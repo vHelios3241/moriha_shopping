@@ -20,6 +20,7 @@ public enum CodeEnum {
     LOGIN_CODE_ERROR(609, "验证码错误"),
     LOGIN_NOPHONE_ERROR(610, "手机号不存在"),
     LOGIN_USER_STATUS_ERROR(611, "该用户状态异常"),
+    QR_CODE_ERROR(612, "二维码生成异常"),
     ;
 
     private final Integer code;
