@@ -43,8 +43,13 @@ public class PaymentController {
     @PostMapping("/success/notify")
     public BaseResult successNotify(HttpServletRequest request){
         // 1.验签
-        Map<String,Object> paramMap = new HashMap();
-        paramMap.put("requestParameterMap",request.getParameterMap());
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        // 新Map
+        Map<String, String[]> newMap = new HashMap<>();
+        newMap.putAll(parameterMap);
+
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("requestParameterMap",newMap);
         zfbPayService.checkSign(paramMap);
         // 拿到订单状态和编号
         String trade_status = request.getParameter("trade_status");  // 交易状态
