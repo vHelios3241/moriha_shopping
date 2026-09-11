@@ -7,7 +7,9 @@ import com.moriha.common.service.OrdersService;
 import com.moriha.shopping_order_service.mapper.CartGoodsMapper;
 import com.moriha.shopping_order_service.mapper.OrdersMapper;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.support.MessageBuilder;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -20,6 +22,9 @@ public class OrdersServiceImpl implements OrdersService {
     private OrdersMapper ordersMapper;
     @Autowired
     private CartGoodsMapper cartGoodsMapper;
+    @Autowired
+    private RocketMQTemplate rocketMQTemplate;
+    private final String CHECK_ORDERS_QUEUE = "check_orders_queue";
 
     /*
      * 生成订单
@@ -50,6 +55,11 @@ public class OrdersServiceImpl implements OrdersService {
             cartGood.setOrderId(orders.getId());
             cartGoodsMapper.insert(cartGood);
         }
+
+        //发送延时消息，30m后判断订单是否支付
+        //延时等级1到16分别表示 1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
+        rocketMQTemplate.syncSend(CHECK_ORDERS_QUEUE, MessageBuilder.withPayload(orders.getId()).build(),15000,4);
+
         return orders;
     }
 
@@ -62,6 +72,14 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     /*
+     * 查询用户订单
+     */
+    @Override
+    public List<Orders> findUserOrders(Long userId,Integer status) {
+        return ordersMapper.findOrdersByUserIdAndStatus(userId,status);
+    }
+
+    /*
      * 查询订单详情
      */
     @Override
@@ -69,11 +87,5 @@ public class OrdersServiceImpl implements OrdersService {
         return ordersMapper.findById(id);
     }
 
-    /*
-     * 查询用户订单
-     */
-    @Override
-    public List<Orders> findUserOrders(Long userId, Integer status) {
-        return ordersMapper.findUserOrders(userId, status);
-    }
+
 }
