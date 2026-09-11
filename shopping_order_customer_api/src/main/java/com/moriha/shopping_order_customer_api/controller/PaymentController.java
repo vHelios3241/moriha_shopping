@@ -6,6 +6,7 @@ import com.moriha.common.pojo.Payment;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.OrdersService;
 import com.moriha.common.service.ZfbPayService;
+import io.seata.spring.annotation.GlobalTransactional;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+ * 支付
+ */
 @RequestMapping("/user/payment")
 @RestController
 public class PaymentController {
@@ -31,16 +35,17 @@ public class PaymentController {
      * @return 二维码字符串
      */
     @PostMapping("/pcPay")
-    public BaseResult<String> pcPay(String orderId){
-        Orders order = ordersService.findById(orderId);
-        String codeurl = zfbPayService.pcPay(order);
-        return BaseResult.ok(codeurl);
+    public BaseResult<String> pcPay(String orderId) {
+        Orders orders = ordersService.findById(orderId);
+        String codeUrl = zfbPayService.pcPay(orders);
+        return BaseResult.ok(codeUrl);
     }
 
     /*
      * 支付成功回调方法
      */
     @PostMapping("/success/notify")
+    @GlobalTransactional
     public BaseResult successNotify(HttpServletRequest request){
         // 1.验签
         Map<String, String[]> parameterMap = request.getParameterMap();
