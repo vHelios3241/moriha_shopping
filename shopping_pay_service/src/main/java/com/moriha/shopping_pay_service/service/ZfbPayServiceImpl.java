@@ -33,6 +33,10 @@ public class ZfbPayServiceImpl implements ZfbPayService {
      */
     @Override
     public String pcPay(Orders orders) {
+        // 判断订单状态（未支付→二维码）
+        if(orders.getStatus() != 1){
+            throw new BusException(CodeEnum.ORDER_STATUS_ERROR);
+        }
         // 1. 创建请求对象
         AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
         // 2. 设置请求内容
@@ -45,11 +49,11 @@ public class ZfbPayServiceImpl implements ZfbPayService {
         // 3. 发送请求
         try {
             AlipayTradePrecreateResponse response =  alipayClient.execute(request);
-            System.out.println("支付宝响应: " + response.getBody());
+//            System.out.println("支付宝响应: " + response.getBody());
             // 4. 返回二维码
             return response.getQrCode();
         } catch (AlipayApiException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             throw new BusException(CodeEnum.QR_CODE_ERROR);
         }
     }
