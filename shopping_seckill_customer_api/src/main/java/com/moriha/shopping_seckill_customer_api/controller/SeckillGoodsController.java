@@ -30,4 +30,16 @@ public class SeckillGoodsController {
         Page<SeckillGoods> resultPage = seckillService.findPageByRedis(page, size);
         return BaseResult.ok(resultPage);
     }
+
+    /*
+     * 用户查询秒杀商品详情
+     * @param id 商品Id
+     * @return 查询结果
+     */
+    @GetMapping("/findById")
+    public BaseResult<SeckillGoods> findById(Long id){
+        SeckillGoods seckillGoods = seckillService.findSeckillGoodsByRedis(id);
+        return BaseResult.ok(seckillGoods);
+    }
+
 }

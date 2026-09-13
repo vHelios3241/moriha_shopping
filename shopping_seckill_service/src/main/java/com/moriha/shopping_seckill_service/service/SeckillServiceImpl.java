@@ -84,7 +84,7 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public SeckillGoods findSeckillGoodsByRedis(Long goodsId) {
-        return null;
+        return (SeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(goodsId);
     }
 
     /*
