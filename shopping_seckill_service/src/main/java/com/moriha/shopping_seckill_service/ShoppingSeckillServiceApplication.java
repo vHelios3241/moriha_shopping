@@ -6,12 +6,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableDiscoveryClient
 @EnableDubbo
 @RefreshScope
 @SpringBootApplication
-@MapperScan("com.itbaizhan.shopping_seckill_service.mapper")
+@MapperScan("com.moriha.shopping_seckill_service.mapper")
+@EnableScheduling  // 启用定时任务
 public class ShoppingSeckillServiceApplication {
 
     public static void main(String[] args) {
