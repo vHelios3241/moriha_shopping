@@ -52,16 +52,29 @@ public class SeckillServiceImpl implements SeckillService {
         }
     }
 
-
     /*
-     * 前台用户查询秒杀商品
+     * 前台用户分页查询秒杀商品
      * @param page 页数
      * @param size 每页条数
      * @return 查询结果
      */
     @Override
     public Page<SeckillGoods> findPageByRedis(int page, int size) {
-        return null;
+        // 1.查询所有秒杀商品列表
+        List<SeckillGoods> seckillGoodsList = redisTemplate.boundHashOps("seckillGoods").values();
+        // 2.获取当前页商品列表
+        int start = (page - 1) * size;
+        int end = start + size > seckillGoodsList.size() ? seckillGoodsList.size() : start + size;
+        // 获取当前页结果集
+        List<SeckillGoods> seckillGoods = seckillGoodsList.subList(start, end);
+        // 3.构造页面对象
+        Page<SeckillGoods> page1 = new Page<>();
+        page1.setCurrent(page)  // 当前页
+                .setSize(size)  // 每页条数
+                .setTotal(seckillGoodsList.size())  // 总条数
+                .setRecords(seckillGoods);  // 结果集
+
+        return page1;
     }
 
     /*
