@@ -1,13 +1,12 @@
 package com.moriha.shopping_seckill_customer_api.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.moriha.common.pojo.Orders;
 import com.moriha.common.pojo.SeckillGoods;
 import com.moriha.common.result.BaseResult;
 import com.moriha.common.service.SeckillService;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /*
  * 秒杀商品
@@ -40,6 +39,18 @@ public class SeckillGoodsController {
     public BaseResult<SeckillGoods> findById(Long id){
         SeckillGoods seckillGoods = seckillService.findSeckillGoodsByRedis(id);
         return BaseResult.ok(seckillGoods);
+    }
+
+    /*
+     * 生成秒杀订单
+     * @param orders 订单对象
+     * @return 生成的订单
+     */
+    @PostMapping("/add")
+    public BaseResult<Orders> add(@RequestBody Orders orders, @RequestHeader Long userId){
+        orders.setUserId(userId);
+        Orders order = seckillService.createOrder(orders);
+        return BaseResult.ok(order);
     }
 
 }

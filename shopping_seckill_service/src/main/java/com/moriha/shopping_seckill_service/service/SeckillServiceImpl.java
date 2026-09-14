@@ -1,17 +1,23 @@
 package com.moriha.shopping_seckill_service.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.moriha.common.pojo.CartGoods;
 import com.moriha.common.pojo.Orders;
 import com.moriha.common.pojo.SeckillGoods;
+import com.moriha.common.result.BusException;
+import com.moriha.common.result.CodeEnum;
 import com.moriha.common.service.SeckillService;
 import com.moriha.shopping_seckill_service.mapper.SeckillGoodsMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -94,7 +100,36 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public Orders createOrder(Orders orders) {
-        return null;
+
+        // 1.生成订单对象
+        orders.setId(IdWorker.getIdStr()); // 手动生产订单id
+        orders.setStatus(1); // 订单状态未付款
+        orders.setCreateTime(new Date()); // 订单创建时间
+        orders.setExpire(new Date(new Date().getTime() + 1000*60*5)); // 订单过期时间
+        // 计算商品价格
+        CartGoods cartGoods = orders.getCartGoods().get(0);
+        Integer num = cartGoods.getNum();
+        BigDecimal price = cartGoods.getPrice();
+        BigDecimal sum = price.multiply(BigDecimal.valueOf(num));
+        orders.setPayment(sum);
+
+        // 2.减少秒杀商品库存
+        // 查询秒杀商品
+        SeckillGoods seckillGoods = findSeckillGoodsByRedis(cartGoods.getGoodId());
+        // 查询库存，库存不足抛出异常
+        Integer stockCount = seckillGoods.getStockCount();
+        if (stockCount <= 0){
+            throw new BusException(CodeEnum.NO_STOCK_ERROR);
+        }
+        // 减少库存
+        seckillGoods.setStockCount(seckillGoods.getStockCount() - cartGoods.getNum());
+        // 更新redis中的秒杀商品数据
+        redisTemplate.boundHashOps("seckillGoods").put(seckillGoods.getGoodsId(),seckillGoods);
+
+        // 3.保存订单数据
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.opsForValue().set(orders.getId(),orders);
+        return orders;
     }
 
     /*
