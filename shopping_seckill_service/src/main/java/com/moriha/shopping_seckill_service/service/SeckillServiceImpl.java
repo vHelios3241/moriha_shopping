@@ -101,6 +101,18 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     public Orders createOrder(Orders orders) {
 
+        // 将redis中秒杀商品的库存数据同步到mysql
+        List<SeckillGoods> seckillGoodsList = redisTemplate.boundHashOps("seckillGoods").values();
+        for (SeckillGoods seckillGoods : seckillGoodsList) {
+            // 在数据库查询秒杀商品
+            QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("goodsId", seckillGoods.getGoodsId());
+            SeckillGoods sqlSeckillGoods = seckillGoodsMapper.selectOne(queryWrapper);
+            // 修改数据库中秒杀商品的库存，和redis中的库存保持一致
+            sqlSeckillGoods.setStockCount(seckillGoods.getStockCount());
+            seckillGoodsMapper.updateById(sqlSeckillGoods);
+        }
+
         // 1.生成订单对象
         orders.setId(IdWorker.getIdStr()); // 手动生产订单id
         orders.setStatus(1); // 订单状态未付款
