@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Orders;
 import com.moriha.common.pojo.SeckillGoods;
 import com.moriha.common.result.BaseResult;
+import com.moriha.common.service.OrdersService;
 import com.moriha.common.service.SeckillService;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,8 @@ public class SeckillGoodsController {
 
     @DubboReference
     private SeckillService seckillService;
+    @DubboReference
+    private OrdersService ordersService;
 
     /*
      * 用户分页查询秒杀商品
@@ -64,5 +67,17 @@ public class SeckillGoodsController {
         return BaseResult.ok(orders);
     }
 
+    /*
+     * 支付秒杀订单
+     * @param id 订单id
+     */
+    @GetMapping("/pay")
+    public BaseResult pay(String id){
+        // 支付
+        Orders orders = seckillService.pay(id);
+        // 订单存入数据库
+        ordersService.add(orders);
+        return BaseResult.ok();
+    }
 
 }

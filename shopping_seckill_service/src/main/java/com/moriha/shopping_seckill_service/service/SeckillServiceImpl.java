@@ -161,7 +161,18 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public Orders pay(String orderId) {
-        return null;
+        // 1.查询订单，设置数据
+        Orders orders = findOrder(orderId);
+        if (orders == null){
+            throw new BusException(CodeEnum.ORDER_EXPIRED_ERROR);
+        }
+        orders.setStatus(2); // 已付款
+        orders.setPaymentTime(new Date());
+        orders.setPaymentType(2); // 支付宝支付
+        // 2.从redis删除订单数据
+        redisTemplate.delete(orderId);
+        // 3.返回订单数据
+        return orders;
     }
 
 }

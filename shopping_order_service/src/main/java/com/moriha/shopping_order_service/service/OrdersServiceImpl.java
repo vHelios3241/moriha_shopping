@@ -32,7 +32,9 @@ public class OrdersServiceImpl implements OrdersService {
     @Override
     public Orders add(Orders orders) {
         // 设置订单状态未付款
-        orders.setStatus(1);
+        if(orders.getStatus() == null){
+            orders.setStatus(1);
+        }
         // 设置订单创建时间
         orders.setCreateTime(new Date());
         // 计算订单价格，遍历订单所有商品
