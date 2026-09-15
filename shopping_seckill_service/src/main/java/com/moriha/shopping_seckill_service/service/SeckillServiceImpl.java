@@ -151,7 +151,7 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public Orders findOrder(String id) {
-        return null;
+        return (Orders) redisTemplate.opsForValue().get(id);
     }
 
     /*

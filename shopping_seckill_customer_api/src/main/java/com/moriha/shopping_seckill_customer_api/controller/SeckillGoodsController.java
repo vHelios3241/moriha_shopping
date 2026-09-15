@@ -53,4 +53,16 @@ public class SeckillGoodsController {
         return BaseResult.ok(order);
     }
 
+    /*
+     * 根据id查询秒杀订单
+     * @param id 订单id
+     * @return 查询结果
+     */
+    @GetMapping("/findOrder")
+    public BaseResult<Orders> findOrder(String id){
+        Orders orders = seckillService.findOrder(id);
+        return BaseResult.ok(orders);
+    }
+
+
 }
