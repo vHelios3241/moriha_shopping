@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -140,7 +141,16 @@ public class SeckillServiceImpl implements SeckillService {
 
         // 3.保存订单数据
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.opsForValue().set(orders.getId(),orders);
+        // 设置订单过期时间
+        redisTemplate.opsForValue().set(orders.getId(), orders, 1, TimeUnit.MINUTES);
+        /**
+         * 给订单创建副本，副本的过期时间长于原订单
+         * redis过期后触发过期事件时，redis数据已经过期，此时只能拿到key，拿不到value。
+         * 而过期事件需要回退商品库存，必须拿到value即订单详情，才能拿到商品数据，进行回退操作
+         * 我们保存一个订单副本，过期时间长于原订单，此时就可以通过副本拿到原订单数据
+         */
+        redisTemplate.opsForValue().set(orders.getId()+"_copy", orders, 2, TimeUnit.MINUTES);
+
         return orders;
     }
 
