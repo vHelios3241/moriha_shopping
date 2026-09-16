@@ -13,7 +13,6 @@ import com.moriha.shopping_seckill_service.mapper.SeckillGoodsMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -140,7 +139,7 @@ public class SeckillServiceImpl implements SeckillService {
         redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()),seckillGoods);
 
         // 3.保存订单数据 (手动把 key 序列化器改成 String)
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
+//        redisTemplate.setKeySerializer(new StringRedisSerializer());
         // 设置订单过期时间
         redisTemplate.opsForValue().set(orders.getId(), orders, 1, TimeUnit.MINUTES);
         /**
