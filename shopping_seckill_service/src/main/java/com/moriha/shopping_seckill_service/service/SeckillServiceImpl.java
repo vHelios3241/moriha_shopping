@@ -37,7 +37,7 @@ public class SeckillServiceImpl implements SeckillService {
      * 每分钟查询一次数据库，更新redis中的秒杀商品数据
      * 条件为startTime <= 当前时间 <= endTime，库存大于0
      */
-    @Scheduled(cron = "0/5 * * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void refreshRedis() {
         System.out.println("同步mysql秒杀商品到redis...");
 
@@ -55,7 +55,7 @@ public class SeckillServiceImpl implements SeckillService {
 
         // 3.保存现在正在秒杀的商品
         for (SeckillGoods seckillGoods : seckillGoodsList) {
-            redisTemplate.boundHashOps("seckillGoods").put(seckillGoods.getGoodsId(), seckillGoods);
+            redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()), seckillGoods);
         }
     }
 
@@ -91,7 +91,7 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public SeckillGoods findSeckillGoodsByRedis(Long goodsId) {
-        return (SeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(goodsId);
+        return (SeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(String.valueOf(goodsId));
     }
 
     /*
@@ -137,9 +137,9 @@ public class SeckillServiceImpl implements SeckillService {
         // 减少库存
         seckillGoods.setStockCount(seckillGoods.getStockCount() - cartGoods.getNum());
         // 更新redis中的秒杀商品数据
-        redisTemplate.boundHashOps("seckillGoods").put(seckillGoods.getGoodsId(),seckillGoods);
+        redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()),seckillGoods);
 
-        // 3.保存订单数据
+        // 3.保存订单数据 (手动把 key 序列化器改成 String)
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         // 设置订单过期时间
         redisTemplate.opsForValue().set(orders.getId(), orders, 1, TimeUnit.MINUTES);
@@ -181,6 +181,7 @@ public class SeckillServiceImpl implements SeckillService {
         orders.setPaymentType(2); // 支付宝支付
         // 2.从redis删除订单数据
         redisTemplate.delete(orderId);
+        redisTemplate.delete(orderId + "_copy");
         // 3.返回订单数据
         return orders;
     }
