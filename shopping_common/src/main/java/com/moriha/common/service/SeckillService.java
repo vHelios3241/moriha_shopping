@@ -14,7 +14,9 @@ public interface SeckillService {
     Orders createOrder(Orders orders);
     // 根据id查询秒杀订单
     Orders findOrder(String id);
-    //支付秒杀订单
+    // 支付秒杀订单
     Orders pay(String orderId);
+    // 将一个秒杀商品保存到redis中
+    void addRedisSeckillGoods(SeckillGoods seckillGoods);
 
 }

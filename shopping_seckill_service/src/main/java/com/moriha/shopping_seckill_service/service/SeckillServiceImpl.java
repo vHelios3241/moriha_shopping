@@ -1,5 +1,6 @@
 package com.moriha.shopping_seckill_service.service;
 
+import cn.hutool.bloomfilter.BitMapBloomFilter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,6 +32,8 @@ public class SeckillServiceImpl implements SeckillService {
     private SeckillGoodsMapper seckillGoodsMapper;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    private BitMapBloomFilter filter;
 
     /**
      * 每分钟查询一次数据库，更新redis中的秒杀商品数据
@@ -90,7 +93,28 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public SeckillGoods findSeckillGoodsByRedis(Long goodsId) {
-        return (SeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(String.valueOf(goodsId));
+        // 1.从redis中查询秒杀商品
+        SeckillGoods seckillGoods = (SeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(String.valueOf(goodsId));
+        // 2.如果查到商品，返回
+        if(seckillGoods != null){
+            return seckillGoods;
+        }
+        // 3.如果没有查到商品，从数据库查询秒杀商品
+        QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("goodsId",goodsId);
+        SeckillGoods seckillGoodsMysql = seckillGoodsMapper.selectOne(queryWrapper);
+        System.out.println("从mysql中查询秒杀商品");
+        // 4.如果该商品不在秒杀状态，抛出异常
+        Date now = new Date();
+        if(seckillGoodsMysql == null
+        || now.before(seckillGoodsMysql.getStartTime())
+        || now.after(seckillGoodsMysql.getEndTime())
+        || seckillGoodsMysql.getStockCount() <= 0){
+            return null;
+        }
+        // 5.如果该商品在秒杀状态，将商品保存到redis，并返回该商品
+        addRedisSeckillGoods(seckillGoodsMysql);
+        return seckillGoodsMysql;
     }
 
     /*
@@ -185,4 +209,12 @@ public class SeckillServiceImpl implements SeckillService {
         return orders;
     }
 
+    /*
+     * 将一个秒杀商品保存到redis中
+     * @param seckillGoods 秒杀商品对象
+     */
+    @Override
+    public void addRedisSeckillGoods(SeckillGoods seckillGoods) {
+        redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()),seckillGoods);
+    }
 }
