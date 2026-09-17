@@ -1,5 +1,6 @@
 package com.moriha.shopping_seckill_service;
 
+import cn.hutool.bloomfilter.BitMapBloomFilter;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
@@ -30,5 +31,13 @@ public class ShoppingSeckillServiceApplication {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
         return interceptor;
+    }
+
+    // 布隆过滤器
+    @Bean
+    public BitMapBloomFilter bitMapBloomFilter() {
+        // 构造方法的参数 决定了布隆过滤器能存放多少元素
+        BitMapBloomFilter bloomFilter = new BitMapBloomFilter(1000);
+        return bloomFilter;
     }
 }

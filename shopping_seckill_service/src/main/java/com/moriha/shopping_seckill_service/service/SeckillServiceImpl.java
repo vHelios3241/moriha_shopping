@@ -33,7 +33,7 @@ public class SeckillServiceImpl implements SeckillService {
     @Autowired
     private RedisTemplate redisTemplate;
     @Autowired
-    private BitMapBloomFilter filter;
+    private BitMapBloomFilter bloomFilter;
 
     /**
      * 每分钟查询一次数据库，更新redis中的秒杀商品数据
@@ -58,6 +58,8 @@ public class SeckillServiceImpl implements SeckillService {
         // 3.保存现在正在秒杀的商品
         for (SeckillGoods seckillGoods : seckillGoodsList) {
             redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()), seckillGoods);
+            // 将正在秒杀的商品保存到布隆过滤器
+            bloomFilter.add(String.valueOf(seckillGoods.getGoodsId()));
         }
     }
 
@@ -93,10 +95,18 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public SeckillGoods findSeckillGoodsByRedis(Long goodsId) {
+
+        // 布隆过滤器判断秒杀商品是否存在，如果不存在，直接返回空
+        if(!bloomFilter.contains(String.valueOf(goodsId))){
+            System.out.println("布隆过滤器判断商品不存在！");
+            return null;
+        }
+
         // 1.从redis中查询秒杀商品
         SeckillGoods seckillGoods = (SeckillGoods) redisTemplate.boundHashOps("seckillGoods").get(String.valueOf(goodsId));
         // 2.如果查到商品，返回
         if(seckillGoods != null){
+            System.out.println("从redis中查询秒杀商品");
             return seckillGoods;
         }
         // 3.如果没有查到商品，从数据库查询秒杀商品
@@ -104,12 +114,13 @@ public class SeckillServiceImpl implements SeckillService {
         queryWrapper.eq("goodsId",goodsId);
         SeckillGoods seckillGoodsMysql = seckillGoodsMapper.selectOne(queryWrapper);
         System.out.println("从mysql中查询秒杀商品");
-        // 4.如果该商品不在秒杀状态，抛出异常
+        // 4.如果该商品不在秒杀状态，返回空值
         Date now = new Date();
         if(seckillGoodsMysql == null
         || now.before(seckillGoodsMysql.getStartTime())
         || now.after(seckillGoodsMysql.getEndTime())
-        || seckillGoodsMysql.getStockCount() <= 0){
+        || seckillGoodsMysql.getStockCount() <= 0
+        ){
             return null;
         }
         // 5.如果该商品在秒杀状态，将商品保存到redis，并返回该商品
@@ -216,5 +227,7 @@ public class SeckillServiceImpl implements SeckillService {
     @Override
     public void addRedisSeckillGoods(SeckillGoods seckillGoods) {
         redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()),seckillGoods);
+        // 将正在秒杀的商品保存到布隆过滤器
+        bloomFilter.add(String.valueOf(seckillGoods.getGoodsId()));
     }
 }
