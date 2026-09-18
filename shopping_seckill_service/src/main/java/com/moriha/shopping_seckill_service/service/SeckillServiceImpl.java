@@ -71,6 +71,7 @@ public class SeckillServiceImpl implements SeckillService {
      * @param size 每页条数
      * @return 查询结果
      */
+    @SentinelResource("findPageByRedis")
     @Override
     public Page<SeckillGoods> findPageByRedis(int page, int size) {
         // 1.查询所有秒杀商品列表
@@ -86,6 +87,12 @@ public class SeckillServiceImpl implements SeckillService {
                 .setSize(size)  // 每页条数
                 .setTotal(seckillGoodsList.size())  // 总条数
                 .setRecords(seckillGoods);  // 结果集
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         return page1;
     }
