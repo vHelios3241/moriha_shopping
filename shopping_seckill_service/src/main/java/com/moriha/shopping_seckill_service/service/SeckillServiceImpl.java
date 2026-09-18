@@ -1,6 +1,7 @@
 package com.moriha.shopping_seckill_service.service;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -109,17 +110,27 @@ public class SeckillServiceImpl implements SeckillService {
             System.out.println("从redis中查询秒杀商品");
             return seckillGoods;
         }
+        return null;
+    }
+
+    /*
+     * 从数据库根据商品id查询秒杀商品
+     * @param goodsId 秒杀商品对应的商品Id
+     */
+    @SentinelResource(value = "findSeckillGoodsByMySql", blockHandler = "mysqlBlockHandler")
+    @Override
+    public SeckillGoods findSeckillGoodsByMySql(Long goodsId){
         // 3.如果没有查到商品，从数据库查询秒杀商品
-        QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper();
+        QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("goodsId",goodsId);
         SeckillGoods seckillGoodsMysql = seckillGoodsMapper.selectOne(queryWrapper);
         System.out.println("从mysql中查询秒杀商品");
         // 4.如果该商品不在秒杀状态，返回空值
         Date now = new Date();
         if(seckillGoodsMysql == null
-        || now.before(seckillGoodsMysql.getStartTime())
-        || now.after(seckillGoodsMysql.getEndTime())
-        || seckillGoodsMysql.getStockCount() <= 0
+                || now.before(seckillGoodsMysql.getStartTime())
+                || now.after(seckillGoodsMysql.getEndTime())
+                || seckillGoodsMysql.getStockCount() <= 0
         ){
             return null;
         }

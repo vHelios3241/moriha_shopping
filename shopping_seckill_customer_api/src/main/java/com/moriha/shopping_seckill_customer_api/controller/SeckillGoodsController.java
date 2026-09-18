@@ -40,8 +40,15 @@ public class SeckillGoodsController {
      */
     @GetMapping("/findById")
     public BaseResult<SeckillGoods> findById(Long id){
+        // 从redis中查询秒杀商品详情
         SeckillGoods seckillGoods = seckillService.findSeckillGoodsByRedis(id);
-        return BaseResult.ok(seckillGoods);
+        if(seckillGoods == null){
+            return BaseResult.ok(seckillGoods);
+        } else {
+            // 如果redis中查找不到，再从数据库查询秒杀商品详情
+            SeckillGoods secillGoodsByMySql = seckillService.findSeckillGoodsByMySql(id);
+            return BaseResult.ok(secillGoodsByMySql);
+        }
     }
 
     /*

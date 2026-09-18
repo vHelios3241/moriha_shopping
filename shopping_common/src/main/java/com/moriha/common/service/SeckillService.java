@@ -18,5 +18,7 @@ public interface SeckillService {
     Orders pay(String orderId);
     // 将一个秒杀商品保存到redis中
     void addRedisSeckillGoods(SeckillGoods seckillGoods);
+    // 从数据库根据商品id查询秒杀商品
+    SeckillGoods findSeckillGoodsByMySql(Long goodsId);
 
 }
