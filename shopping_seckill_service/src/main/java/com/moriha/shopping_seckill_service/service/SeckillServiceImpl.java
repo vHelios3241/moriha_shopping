@@ -2,6 +2,7 @@ package com.moriha.shopping_seckill_service.service;
 
 import cn.hutool.bloomfilter.BitMapBloomFilter;
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -117,7 +118,7 @@ public class SeckillServiceImpl implements SeckillService {
      * 从数据库根据商品id查询秒杀商品
      * @param goodsId 秒杀商品对应的商品Id
      */
-    @SentinelResource(value = "findSeckillGoodsByMySql", blockHandler = "mysqlBlockHandler")
+    @SentinelResource(value = "findSeckillGoodsByMySql", blockHandler = "mysqlBlockHandler" )
     @Override
     public SeckillGoods findSeckillGoodsByMySql(Long goodsId){
         // 3.如果没有查到商品，从数据库查询秒杀商品
@@ -137,6 +138,15 @@ public class SeckillServiceImpl implements SeckillService {
         // 5.如果该商品在秒杀状态，将商品保存到redis，并返回该商品
         addRedisSeckillGoods(seckillGoodsMysql);
         return seckillGoodsMysql;
+    }
+
+    /*
+     * 降级处理
+     * @return 空值
+     */
+    public SeckillGoods mysqlBlockHandler(Long goodsId, BlockException e){
+        System.out.println("服务降级处理");
+        return null;
     }
 
     /*
@@ -241,4 +251,5 @@ public class SeckillServiceImpl implements SeckillService {
         // 将正在秒杀的商品保存到布隆过滤器
         bloomFilter.add(String.valueOf(seckillGoods.getGoodsId()));
     }
+
 }
