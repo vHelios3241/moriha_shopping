@@ -1,1 +1,2 @@
 com.moriha.common.result.GlobalExceptionHandler
+com.moriha.common.result.MyBlockExceptionHandler
