@@ -13,6 +13,7 @@ import com.moriha.common.result.BusException;
 import com.moriha.common.result.CodeEnum;
 import com.moriha.common.service.SeckillService;
 import com.moriha.shopping_seckill_service.mapper.SeckillGoodsMapper;
+import com.moriha.shopping_seckill_service.redis.RedissonLock;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -36,6 +37,8 @@ public class SeckillServiceImpl implements SeckillService {
     private RedisTemplate redisTemplate;
     @Autowired
     private BitMapBloomFilter bloomFilter;
+    @Autowired
+    private RedissonLock redissonLock;
 
     /**
      * 每分钟查询一次数据库，更新redis中的秒杀商品数据
@@ -162,58 +165,66 @@ public class SeckillServiceImpl implements SeckillService {
      * @return
      */
     @Override
-    public Orders createOrder(Orders orders) {
+    public  Orders createOrder(Orders orders) {
+        String lockKey = orders.getCartGoods().get(0).getGoodId().toString();
+        if(redissonLock.lock(lockKey,10000)){
+            try {
+                // 将redis中秒杀商品的库存数据同步到mysql
+                List<SeckillGoods> seckillGoodsList = redisTemplate.boundHashOps("seckillGoods").values();
+                for (SeckillGoods seckillGoods : seckillGoodsList) {
+                    // 在数据库查询秒杀商品
+                    QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper<>();
+                    queryWrapper.eq("goodsId", seckillGoods.getGoodsId());
+                    SeckillGoods sqlSeckillGoods = seckillGoodsMapper.selectOne(queryWrapper);
+                    // 修改数据库中秒杀商品的库存，和redis中的库存保持一致
+                    sqlSeckillGoods.setStockCount(seckillGoods.getStockCount());
+                    seckillGoodsMapper.updateById(sqlSeckillGoods);
+                }
 
-        // 将redis中秒杀商品的库存数据同步到mysql
-        List<SeckillGoods> seckillGoodsList = redisTemplate.boundHashOps("seckillGoods").values();
-        for (SeckillGoods seckillGoods : seckillGoodsList) {
-            // 在数据库查询秒杀商品
-            QueryWrapper<SeckillGoods> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("goodsId", seckillGoods.getGoodsId());
-            SeckillGoods sqlSeckillGoods = seckillGoodsMapper.selectOne(queryWrapper);
-            // 修改数据库中秒杀商品的库存，和redis中的库存保持一致
-            sqlSeckillGoods.setStockCount(seckillGoods.getStockCount());
-            seckillGoodsMapper.updateById(sqlSeckillGoods);
+                // 1.生成订单对象
+                orders.setId(IdWorker.getIdStr()); // 手动生产订单id
+                orders.setStatus(1); // 订单状态未付款
+                orders.setCreateTime(new Date()); // 订单创建时间
+                orders.setExpire(new Date(new Date().getTime() + 1000*60*5)); // 订单过期时间
+                // 计算商品价格
+                CartGoods cartGoods = orders.getCartGoods().get(0);
+                Integer num = cartGoods.getNum();
+                BigDecimal price = cartGoods.getPrice();
+                BigDecimal sum = price.multiply(BigDecimal.valueOf(num));
+                orders.setPayment(sum);
+
+                // 2.减少秒杀商品库存
+                // 查询秒杀商品
+                SeckillGoods seckillGoods = findSeckillGoodsByRedis(cartGoods.getGoodId());
+                // 查询库存，库存不足抛出异常
+                Integer stockCount = seckillGoods.getStockCount();
+                if (stockCount <= 0){
+                    throw new BusException(CodeEnum.NO_STOCK_ERROR);
+                }
+                // 减少库存
+                seckillGoods.setStockCount(seckillGoods.getStockCount() - cartGoods.getNum());
+                // 更新redis中的秒杀商品数据
+                redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()),seckillGoods);
+
+                // 3.保存订单数据 (手动把 key 序列化器改成 String)
+//              redisTemplate.setKeySerializer(new StringRedisSerializer());
+                // 设置订单过期时间
+                redisTemplate.opsForValue().set(orders.getId(), orders, 1, TimeUnit.MINUTES);
+                /**
+                 * 给订单创建副本，副本的过期时间长于原订单
+                 * redis过期后触发过期事件时，redis数据已经过期，此时只能拿到key，拿不到value。
+                 * 而过期事件需要回退商品库存，必须拿到value即订单详情，才能拿到商品数据，进行回退操作
+                 * 我们保存一个订单副本，过期时间长于原订单，此时就可以通过副本拿到原订单数据
+                 */
+                redisTemplate.opsForValue().set(orders.getId()+"_copy", orders, 2, TimeUnit.MINUTES);
+
+                return orders;
+            } finally {
+                redissonLock.unlock(lockKey);
+            }
+        }else{
+            return null;
         }
-
-        // 1.生成订单对象
-        orders.setId(IdWorker.getIdStr()); // 手动生产订单id
-        orders.setStatus(1); // 订单状态未付款
-        orders.setCreateTime(new Date()); // 订单创建时间
-        orders.setExpire(new Date(new Date().getTime() + 1000*60*5)); // 订单过期时间
-        // 计算商品价格
-        CartGoods cartGoods = orders.getCartGoods().get(0);
-        Integer num = cartGoods.getNum();
-        BigDecimal price = cartGoods.getPrice();
-        BigDecimal sum = price.multiply(BigDecimal.valueOf(num));
-        orders.setPayment(sum);
-
-        // 2.减少秒杀商品库存
-        // 查询秒杀商品
-        SeckillGoods seckillGoods = findSeckillGoodsByRedis(cartGoods.getGoodId());
-        // 查询库存，库存不足抛出异常
-        Integer stockCount = seckillGoods.getStockCount();
-        if (stockCount <= 0){
-            throw new BusException(CodeEnum.NO_STOCK_ERROR);
-        }
-        // 减少库存
-        seckillGoods.setStockCount(seckillGoods.getStockCount() - cartGoods.getNum());
-        // 更新redis中的秒杀商品数据
-        redisTemplate.boundHashOps("seckillGoods").put(String.valueOf(seckillGoods.getGoodsId()),seckillGoods);
-
-        // 3.保存订单数据 (手动把 key 序列化器改成 String)
-//        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        // 设置订单过期时间
-        redisTemplate.opsForValue().set(orders.getId(), orders, 1, TimeUnit.MINUTES);
-        /**
-         * 给订单创建副本，副本的过期时间长于原订单
-         * redis过期后触发过期事件时，redis数据已经过期，此时只能拿到key，拿不到value。
-         * 而过期事件需要回退商品库存，必须拿到value即订单详情，才能拿到商品数据，进行回退操作
-         * 我们保存一个订单副本，过期时间长于原订单，此时就可以通过副本拿到原订单数据
-         */
-        redisTemplate.opsForValue().set(orders.getId()+"_copy", orders, 2, TimeUnit.MINUTES);
-
-        return orders;
     }
 
     /*
