@@ -216,7 +216,10 @@ public class SeckillServiceImpl implements SeckillService {
                  * 而过期事件需要回退商品库存，必须拿到value即订单详情，才能拿到商品数据，进行回退操作
                  * 我们保存一个订单副本，过期时间长于原订单，此时就可以通过副本拿到原订单数据
                  */
-                redisTemplate.opsForValue().set(orders.getId()+"_copy", orders, 2, TimeUnit.MINUTES);
+                redisTemplate.opsForValue().set(orders.getId() + "_copy", orders, 102, TimeUnit.MINUTES);
+
+                System.out.println("下单成功，订单号:"+orders.getId());
+                System.out.println("库存还有:"+seckillGoods.getStockCount());
 
                 return orders;
             } finally {
