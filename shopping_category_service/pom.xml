@@ -7,10 +7,10 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>shopping_category_service</name>
     <description>shopping_category_service</description>
-    <!-- 父工程 -->
+    <!-- 父工�?-->
     <parent>
         <groupId>com.moriha</groupId>
-        <artifactId>Moriha_father_shopping</artifactId>
+        <artifactId>shopping</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -20,17 +20,26 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
+        <!-- mysql驱动 -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- MyBatisPlus -->
         <dependency>
             <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
         </dependency>
-        <!-- mysql驱动 -->
+        <!-- MyBatisPlus分页插件 -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>${mybatis-plus.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.moriha</groupId>
             <artifactId>shopping_common</artifactId>
