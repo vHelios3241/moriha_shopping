@@ -9,4 +9,4 @@ spring:
         server-addr: 192.168.0.99:8848 #注册中心地址
         namespace: fc2e649f-4fab-49c7-a392-e2cc27a4e26d #命名空间
         file-extension: yaml #文件名后缀
-        prefix: shopping_custcare_customer_api #文件名
+        prefix: shopping_custcare_customer_api #文件�?
