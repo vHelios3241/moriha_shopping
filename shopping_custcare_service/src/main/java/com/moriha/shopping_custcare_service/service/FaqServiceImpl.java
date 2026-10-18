@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /*
@@ -47,25 +48,25 @@ public class FaqServiceImpl implements FaqService {
     public String createFaq(Faq faq) {
         // 保存FAQ答案到数据库
         // 手动生成UUID
-        if (faq.getId() == null){
+        if (faq.getId() == null) {
             faq.setId(UUID.randomUUID().toString());
         }
-        if (faq.getStatus() == null){
+        if (faq.getStatus() == null) {
             faq.setStatus(1);
         }
-        if (faq.getUseCount() == null){
+        if (faq.getUseCount() == null) {
             faq.setUseCount(0);
         }
         faqMapper.insert(faq);
 
         // 同步到向量数据库
-        if (faq.getStatus() == 1){
+        if (faq.getStatus() == 1) {
             insertFaqToQdrant(faq);
         }
         return faq.getId();
     }
 
-    public void insertFaqToQdrant(Faq faq){
+    public void insertFaqToQdrant(Faq faq) {
         // 构建元数据
         HashMap<String, Object> metadata = new HashMap<>();
         metadata.put("faq_id", faq.getId());
@@ -82,9 +83,37 @@ public class FaqServiceImpl implements FaqService {
         vectorStore.add(doc);
     }
 
+    /**
+     * 更新 FAQ 答案
+     *
+     * @param faq FAQ答案实体
+     */
     @Override
     public void updateFaq(Faq faq) {
+        // 更新数据库
+        faqMapper.updateById(faq);
+        // 同步数据到向量数据库
+        if (faq.getStatus() != null && faq.getStatus() == 0) {
+            // 删除旧文档
+            deleteFaqVector(faq.getId());
+        } else {
+            // 删除旧文档，插入新文档
+            deleteFaqVector(faq.getId());
+            // 插入新文档
+            if (faq.getStatus() == 1) {
+                insertFaqToQdrant(faq);
+            }
+        }
+    }
 
+
+    /**
+     * 从 Qdrant 删除 FAQ 向量
+     */
+    public void deleteFaqVector(String faqId){
+        List<String> docs = new ArrayList<>();
+        docs.add(faqId);
+        vectorStore.delete(docs);
     }
 
     @Override
@@ -92,4 +121,6 @@ public class FaqServiceImpl implements FaqService {
 
     }
 }
+
+
 
