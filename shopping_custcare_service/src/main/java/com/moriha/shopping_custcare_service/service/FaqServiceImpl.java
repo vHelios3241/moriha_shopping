@@ -1,5 +1,6 @@
 package com.moriha.shopping_custcare_service.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.moriha.common.pojo.Faq;
 import com.moriha.common.service.FaqService;
@@ -28,14 +29,33 @@ public class FaqServiceImpl implements FaqService {
     @Autowired
     private VectorStore vectorStore;
 
+    /**
+     * 分页查询FAQ答案
+     * @param page    页码
+     * @param size    每页大小
+     * @param categoryId 分类ID
+     * @return FAQ答案分页结果
+     */
     @Override
     public Page<Faq> getFaqPage(int page, int size, Integer categoryId) {
-        return null;
+        QueryWrapper<Faq> wrapper = new QueryWrapper<>();
+        if (categoryId != null) {
+            wrapper.eq("categoryId", categoryId);
+        }
+        Page<Faq> faqPage = faqMapper.selectPage(new Page<>(page, size), wrapper);
+        return faqPage;
+
     }
 
+    /**
+     * 根据ID查询FAQ答案
+     *
+     * @param id FAQ答案ID
+     * @return FAQ答案实体
+     */
     @Override
     public Faq getFaqById(String id) {
-        return null;
+        return faqMapper.selectById(id);
     }
 
     /**
