@@ -116,9 +116,17 @@ public class FaqServiceImpl implements FaqService {
         vectorStore.delete(docs);
     }
 
+    /**
+     * 删除 FAQ 答案
+     *
+     * @param id FAQ答案ID
+     */
     @Override
     public void deleteFaq(String id) {
-
+        // 从数据库删除
+        faqMapper.deleteById(id);
+        // 从向量数据库删除
+        deleteFaqVector(id);
     }
 }
 
