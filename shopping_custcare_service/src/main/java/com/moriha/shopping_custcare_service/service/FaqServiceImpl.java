@@ -148,6 +148,20 @@ public class FaqServiceImpl implements FaqService {
         // 从向量数据库删除
         deleteFaqVector(id);
     }
+
+
+    /**
+     * MySQL中的FAQ数据同步到Qdrant
+     */
+    public void syncToQdrant(){
+        QueryWrapper<Faq> wrapper = new QueryWrapper<>();
+        wrapper.eq("status", 1);
+        List<Faq> faqs = faqMapper.selectList(wrapper);
+        for (Faq faq : faqs) {
+            insertFaqToQdrant(faq);
+        }
+    }
+
 }
 
 
