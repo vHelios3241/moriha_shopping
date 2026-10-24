@@ -44,4 +44,11 @@ public interface FaqService {
      * @param id FAQ答案ID
      */
     void deleteFaq(String id);
+
+    /**
+     * 匹配最佳答案
+     * @param question 问题
+     * @return 最佳答案。如果没有答案返回 null
+     */
+    Faq findBestAnswer(String question);
 }
