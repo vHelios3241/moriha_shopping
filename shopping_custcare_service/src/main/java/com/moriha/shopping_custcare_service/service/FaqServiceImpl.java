@@ -7,8 +7,10 @@ import com.moriha.common.service.FaqService;
 import com.moriha.shopping_custcare_service.mapper.FaqMapper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +30,10 @@ public class FaqServiceImpl implements FaqService {
     // Spring AI提供的操作向量数据库的工具
     @Autowired
     private VectorStore vectorStore;
+    // 相似度阈值
+    @Value("${spring.ai.vectorstore.qdrant.similarity-threshold}")
+    private double similarityThreshold;
+
 
     /**
      * 分页查询FAQ答案
@@ -149,6 +155,49 @@ public class FaqServiceImpl implements FaqService {
         deleteFaqVector(id);
     }
 
+    /**
+     * 匹配最佳答案
+     * @param question 问题
+     * @return 最佳答案。如果没有答案返回 null
+     */
+    @Override
+    public Faq findBestAnswer(String question) {
+        // 向量搜索FAQ答案
+        Faq faq = findByVectorSearch(question);
+        // 增加FAQ使用次数
+        if (faq != null) {
+            incrementUseCount(faq.getId());
+            return faq;
+        }
+        return faq;
+    }
+
+    // 向量数据库搜索匹配的FAQ答案
+    private Faq findByVectorSearch(String question){
+        // 构建搜索请求
+        SearchRequest searchRequest = SearchRequest
+                .query(question)
+                .withTopK(1)
+                .withSimilarityThreshold(similarityThreshold);
+        // 执行搜索
+        List<Document> results = vectorStore.similaritySearch(searchRequest);
+        if (!results.isEmpty()){
+            Document result = results.get(0);
+            String faqId = result.getId().toString();
+            return faqMapper.selectById(faqId);
+        }
+        return null;
+    }
+
+    // 增加FAQ使用次数
+    private void incrementUseCount(String id){
+        // 找到相应FAQ答案
+        Faq faq = faqMapper.selectById(id);
+        // 增加使用次数
+        faq.setUseCount(faq.getUseCount() + 1);
+        faqMapper.updateById(faq);
+    }
+
 
     /**
      * MySQL中的FAQ数据同步到Qdrant
@@ -163,6 +212,3 @@ public class FaqServiceImpl implements FaqService {
     }
 
 }
-
-
-
