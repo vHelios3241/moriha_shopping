@@ -27,7 +27,9 @@ public class ShoppingCustcareServiceApplication {
      */
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder){
-        return builder.build();
+        return builder
+                .defaultFunctions("getOrderQueryService")
+                .build();
     }
 
 }
