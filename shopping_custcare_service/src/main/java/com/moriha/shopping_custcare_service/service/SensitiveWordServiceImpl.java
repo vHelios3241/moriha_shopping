@@ -27,7 +27,7 @@ public class SensitiveWordServiceImpl implements SensitiveWordService {
     @Override
     public void addSensitiveWord(SensitiveWord sw) {
         sensitiveWordMapper.insert(sw);
-        // 刷新敏感词配置
+        //  刷新敏感词配置
         if (sw.getType().equals("deny")){
             swbs.addWord(sw.getWord());
         }else if (sw.getType().equals("allow")){
@@ -44,7 +44,7 @@ public class SensitiveWordServiceImpl implements SensitiveWordService {
         sensitiveWordMapper.deleteById(id);
 
         SensitiveWord sw = sensitiveWordMapper.selectById(id);
-        // 刷新敏感词配置
+        //  刷新敏感词配置
         if (sw.getType().equals("deny")){
             swbs.removeWord(sw.getWord());
         }else if (sw.getType().equals("allow")){
