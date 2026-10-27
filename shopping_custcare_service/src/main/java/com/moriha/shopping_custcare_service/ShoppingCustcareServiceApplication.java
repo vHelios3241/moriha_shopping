@@ -3,6 +3,9 @@ package com.moriha.shopping_custcare_service;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -28,7 +31,8 @@ public class ShoppingCustcareServiceApplication {
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder){
         return builder
-                .defaultFunctions("getOrderQueryService")
+                // 默认函数
+                .defaultFunctions("getOrderQueryService", "getGoodsQueryService")
                 .build();
     }
 
