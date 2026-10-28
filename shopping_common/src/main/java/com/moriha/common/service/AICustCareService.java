@@ -5,5 +5,5 @@ package com.moriha.common.service;
  */
 public interface AICustCareService {
     // 根据用户消息生成回复
-    String generateResponse(String userMessage);
+    String generateResponse(String userMessage, Long userId);
 }
