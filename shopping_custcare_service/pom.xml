@@ -72,11 +72,19 @@
             <version>1.0.0-M2</version>
             <scope>compile</scope>
         </dependency>
+
         <!--  操作qdrant向量数据库  -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-qdrant-store</artifactId>
-            <version>1.0.0-M6</version>
+            <version>1.0.0-M2</version>
+        </dependency>
+
+        <!-- Sensitive Word 库 -->
+        <dependency>
+            <groupId>com.github.houbb</groupId>
+            <artifactId>sensitive-word</artifactId>
+            <version>0.21.0</version>
         </dependency>
 
     </dependencies>
@@ -108,19 +116,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
                 <configuration>
                     <mainClass>com.moriha.shopping_custcare_service.ShoppingCustcareServiceApplication</mainClass>
-                    <skip>true</skip>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

@@ -1,12 +1,15 @@
 spring:
+  application:
+    name: shopping_custcare_service
   profiles:
-    # 环境
     active: dev
   cloud:
     nacos:
-      # 注册中心
       config:
         server-addr: 192.168.0.99:8848
-        namespace: fc2e649f-4fab-49c7-a392-e2cc27a4e26d #命名空间
-        file-extension: yaml #文件名后缀
-        prefix: shopping_custcare_service #文件
+        namespace: fc2e649f-4fab-49c7-a392-e2cc27a4e26d
+        file-extension: yaml
+        prefix: shopping_custcare_service
+      discovery:
+        server-addr: 192.168.0.99:8848
+        namespace: fc2e649f-4fab-49c7-a392-e2cc27a4e26d
