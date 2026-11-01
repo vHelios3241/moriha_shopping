@@ -24,6 +24,14 @@ public class ShoppingCustcareServiceApplication {
     }
 
     /*
+     * 对话记忆
+     */
+    @Bean
+    public ChatMemory chatMemory(){
+        return new InMemoryChatMemory();
+    }
+
+    /*
      * AI聊天客户端
      * @param builder
      * @return
@@ -33,6 +41,8 @@ public class ShoppingCustcareServiceApplication {
         return builder
                 // 默认函数
                 .defaultFunctions("getOrderQueryService", "getGoodsQueryService")
+                // 对话记忆
+                .defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory()))
                 .build();
     }
 
