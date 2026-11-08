@@ -39,13 +39,14 @@ public class AICustCareServiceImpl implements AICustCareService {
      * @return AI的响应
      */
     @Override
-    public String generateResponse(String userMessage) {
+    public String generateResponse(String userMessage, Long userId) {
         try {
-            // 定义带占位符的提示词模板，将真实日期注入模板
+            // 添加当前时间+用户ID
             PromptTemplate promptTemplate = new PromptTemplate(prompt);
-            // 替换占位符为真实日期
+            // 替换占位符为真实时间+用户ID
             String resolvedPrompt = promptTemplate.render(
-                    Map.of("current_date", LocalDate.now().toString())
+                    Map.of("current_date", LocalDate.now().toString(),
+                            "user_id", userId )
             );
 
             // 1.检查敏感词
@@ -60,8 +61,26 @@ public class AICustCareServiceImpl implements AICustCareService {
                 return faq.getAnswer();
             }
 
-            // 3.没有FAQ，AI模型回答
-            String content = chatClient.prompt().system(resolvedPrompt).user(userMessage).call().content();
+            // 3.如果没有FAQ，调用AI模型回答
+            prompt += """
+                   你是一个专业的电商客服助手，专门处理订单查询和商品查询请求。请严格按照以下规则执行：
+                   1. **意图识别**：
+                   - 当用户提及"订单"、"我的订单"、"购买记录"、"待支付"、"已发货"、"最近订单"等关键词时，识别为订单查询意图
+                   - 当用户提及"商品"、"查找"、"搜索"、"手机"、"衣服"、"价格"、"库存"等关键词时，识别为商品查询意图
+                   2. **服务调用**：
+                   - 订单查询意图 → 调用 `getOrderQueryService` 方法
+                   - 商品查询意图 → 调用 `getGoodsQueryService` 方法
+                   请确保准确识别用户意图并正确调用相应服务，提取所有可用参数填充到函数调用中，用户ID从prompt获取。
+                   仅当用户明确要求其他操作或工具无法处理时，才直接回复。
+                   当前用户的id: {user_id}
+                 """;
+
+            String content = chatClient
+                    .prompt()
+                    .system(resolvedPrompt)
+                    .user(userMessage)
+                    .call()
+                    .content();
             return content;
         } catch (Exception e) {
             log.error("AI客服生成响应异常, userMessage={}", userMessage, e);
